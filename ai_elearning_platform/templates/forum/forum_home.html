@@ -1,0 +1,131 @@
+{% extends "base/base.html" %}
+{% load static %}
+{# {% load humanize %} # Optional for naturaltime, timesince is good #}
+
+{% block title %}{{ page_title|default:"Skill Path Forums" }} - {{ block.super }}{% endblock title %}
+
+{% block extra_head %}
+{{ block.super }}
+<style>
+    /* Styles specific to this page, if any, beyond custom.css */
+    .forum-category-item { /* Custom class for list group items as categories */
+        background-color: transparent; /* Let parent glass-card handle background */
+        border-color: rgba(var(--accent-color-rgb), 0.15) !important; /* Subtle border between items */
+        transition: var(--transition);
+        margin-bottom: 0.75rem !important; /* Add space between category cards */
+        border-radius: var(--radius-md) !important; /* Rounded corners for each item */
+        padding: 1.25rem 1.5rem; /* More padding */
+    }
+    .forum-category-item:hover {
+        background-color: rgba(var(--accent-color-rgb), 0.08) !important;
+        transform: translateY(-3px) scale(1.01);
+        box-shadow: var(--shadow-lg); /* Use a defined hover shadow */
+    }
+    [data-theme="light"] .forum-category-item {
+        border-color: rgba(var(--secondary-color-rgb), 0.2) !important;
+    }
+    [data-theme="light"] .forum-category-item:hover {
+        background-color: rgba(var(--accent-color-rgb), 0.08) !important;
+        box-shadow: var(--shadow-lg-light); /* Light theme hover shadow */
+    }
+
+    .forum-category-item .category-name {
+        color: var(--accent-color);
+        font-weight: 700; /* Bolder category names */
+        font-size: 1.25rem; /* Larger category names */
+    }
+    [data-theme="light"] .forum-category-item .category-name {
+        color: var(--progress-color); /* Or your dark theme accent for consistency */
+    }
+
+    .forum-category-item .category-meta,
+    .forum-category-item .category-description {
+        color: var(--text-muted-custom);
+        font-size: 0.9rem;
+    }
+    [data-theme="light"] .forum-category-item .category-meta,
+    [data-theme="light"] .forum-category-item .category-description {
+        color: var(--text-muted-custom); /* Ensure it uses the themed muted color */
+    }
+    .forum-category-item .category-stats {
+        font-weight: 500;
+        color: var(--accent-color); /* For stats like thread count */
+    }
+    [data-theme="light"] .forum-category-item .category-stats {
+         color: var(--progress-color);
+    }
+</style>
+{% endblock extra_head %}
+
+{% block content %}
+<section class="forum-home-section py-5">
+    <div class="container px-4 py-5">
+        <!-- Section Header -->
+        <div class="text-center mb-5" data-aos="fade-up">
+            <h1 class="section-title display-5">{{ page_title|default:"Skill Path Community Forums" }}</h1>
+            <p class="lead text-muted-custom mx-auto" style="max-width:700px;">
+                Connect with learners, share insights, ask questions, and grow together.
+            </p>
+        </div>
+
+        <!-- Categories List -->
+        {% if categories %}
+        <div class="list-group glass-card p-3 shadow-lg" data-aos="fade-up" data-aos-delay="100"> {# Main glass container #}
+            {% for category in categories %}
+            <a href="{{ category.get_absolute_url }}" 
+               class="list-group-item list-group-item-action forum-category-item flex-column align-items-start">
+                <div class="d-flex w-100 justify-content-between align-items-center mb-1">
+                    <h5 class="mb-0 category-name">{{ category.name }}</h5>
+                    <small class="category-stats text-nowrap">
+                        <i class="bi bi-chat-left-text-fill me-1"></i>{{ category.threads.count }} topic{{ category.threads.count|pluralize }}
+                    </small>
+                </div>
+                <p class="mb-2 category-description">
+                    {{ category.description|default:"Discussions related to this topic."|truncatewords:25 }}
+                </p>
+                {% with last_thread=category.threads.all.first %} {# .first because ordered by -updated_at in Thread model #}
+                    {% if last_thread %}
+                    <small class="category-meta d-block">
+                        <i class="bi bi-arrow-repeat me-1"></i>Last activity: {{ last_thread.updated_at|timesince }} ago 
+                        in "<span class="fst-italic">{{ last_thread.title|truncatechars:35 }}</span>"
+                    </small>
+                    {% else %}
+                    <small class="category-meta d-block">No topics yet in this category.</small>
+                    {% endif %}
+                {% endwith %}
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="glass-card p-5 text-center mt-4 shadow-lg" data-aos="fade-up" data-aos-delay="100">
+            <i class="bi bi-collection-fill fs-1 text-accent mb-3"></i>
+            <h4 class="fw-bold" style="color:var(--text-light);">No Forum Categories Available</h4>
+            <p class="lead" style="color:var(--text-muted-custom);">
+                It looks like our community forums are just getting started. Please check back soon!
+            </p>
+            {# Optional: Link for admins to create categories #}
+            {% if user.is_staff %}
+                <a href="{% url 'admin:forum_forumcategory_add' %}" class="btn btn-accent mt-3">
+                    <i class="bi bi-plus-circle-fill"></i> Add First Category
+                </a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock content %}
+
+{% block extra_js %}
+{{ block.super }}
+<script>
+    // AOS Init (ensure it's initialized once, preferably in base.html)
+    if (typeof AOS !== 'undefined' && typeof AOS.init === 'function') {
+        AOS.init({
+            duration: 600,
+            easing: 'ease-out-quad',
+            once: true,
+            offset: 50
+        });
+    }
+</script>
+{% endblock extra_js %}

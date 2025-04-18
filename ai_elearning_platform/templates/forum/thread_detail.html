@@ -1,0 +1,245 @@
+{% extends "base/base.html" %}
+{% load static %}
+{% load crispy_forms_tags %} 
+{% load course_tags %}
+{% block title %}{{ page_title|default:thread.title|truncatechars:60 }} - {{ category.name }} - {{ block.super }}{% endblock title %}
+
+{% block extra_head %}
+{{ block.super }}
+<style>
+    /* Styles specific to this page, ensure they align with custom.css */
+    .breadcrumb.glass-card {
+        background-color: rgba(var(--secondary-color-rgb), 0.3) !important;
+        border: 1px solid rgba(var(--accent-color-rgb), 0.1) !important;
+        border-radius: var(--radius-sm);
+    }
+    [data-theme="light"] .breadcrumb.glass-card {
+        background-color: rgba(var(--light-bg-alt-rgb), 0.7) !important;
+        border-color: rgba(var(--secondary-color-rgb), 0.3) !important;
+    }
+    .breadcrumb-item a {
+        color: var(--accent-color);
+        text-decoration: none;
+        font-weight: 500;
+    }
+    .breadcrumb-item.active {
+        color: var(--text-light); /* For dark theme */
+        font-weight: 500;
+    }
+    [data-theme="light"] .breadcrumb-item.active {
+        color: var(--text-dark); /* For light theme */
+    }
+
+    .forum-post-card { /* Main card for each post */
+        /* Inherits glass-card from direct application or uses custom styles */
+        margin-bottom: 1.5rem;
+        border-radius: var(--radius-md);
+        overflow: hidden; /* To contain rounded corners of children */
+    }
+    .forum-user-info-sidebar {
+        background-color: rgba(var(--secondary-color-rgb), 0.25); /* Slightly different from post body */
+        padding: 1.5rem 1rem;
+        border-right: 1px solid rgba(var(--accent-color-rgb), 0.1);
+        color: var(--text-light);
+    }
+    [data-theme="light"] .forum-user-info-sidebar {
+        background-color: rgba(var(--light-bg-alt-rgb), 0.6);
+        border-right-color: rgba(var(--secondary-color-rgb), 0.2);
+        color: var(--text-dark);
+    }
+    .forum-user-info-sidebar img.user-avatar {
+        width: 70px;
+        height: 70px;
+        object-fit: cover;
+        border: 3px solid var(--accent-color);
+        box-shadow: 0 2px 8px rgba(var(--primary-color-rgb), 0.2);
+    }
+    .forum-user-info-sidebar .username-link {
+        color: var(--accent-color);
+        font-weight: 600;
+        text-decoration: none;
+    }
+    .forum-user-info-sidebar .username-link:hover {
+        text-decoration: underline;
+    }
+    .forum-user-info-sidebar .user-meta-info {
+        font-size: 0.8rem;
+        color: var(--text-muted-custom);
+    }
+
+    .forum-post-content-area {
+        padding: 1.5rem;
+    }
+    .forum-post-content-area .post-text {
+        color: var(--text-light); /* Base text color for dark theme */
+        line-height: 1.7;
+        font-size: 1.05rem;
+    }
+    [data-theme="light"] .forum-post-content-area .post-text {
+        color: var(--text-dark); /* Base text color for light theme */
+    }
+    .forum-post-footer {
+        padding: 0.75rem 1.5rem;
+        background-color: rgba(var(--secondary-color-rgb), 0.15);
+        border-top: 1px solid rgba(var(--accent-color-rgb), 0.1);
+        font-size: 0.85rem;
+        color: var(--text-muted-custom);
+    }
+    [data-theme="light"] .forum-post-footer {
+        background-color: rgba(var(--light-bg-alt-rgb), 0.4);
+        border-top-color: rgba(var(--secondary-color-rgb), 0.2);
+    }
+
+    /* Reply Form Styling */
+    .reply-form-container { /* Wrapper for the reply form */
+        max-width: 800px; /* Or your preferred width */
+        margin-left: auto;
+        margin-right: auto;
+    }
+    .reply-form-container textarea.form-control { /* Target specific textarea */
+        background-color: rgba(var(--secondary-color-rgb), 0.5) !important;
+        color: var(--text-light) !important;
+        border: 1px solid rgba(var(--accent-color-rgb), 0.2) !important;
+        border-radius: var(--radius-sm) !important;
+        padding: 0.75rem 1rem;
+        min-height: 120px; /* Good starting height for reply box */
+    }
+    [data-theme="light"] .reply-form-container textarea.form-control {
+        background-color: rgba(var(--light-bg-alt-rgb), 0.8) !important;
+        color: var(--text-dark) !important;
+        border-color: rgba(var(--secondary-color-rgb), 0.3) !important;
+    }
+    /* Ensure label for reply form is styled if you add one */
+    .reply-form-container label {
+        color: var(--text-light);
+        font-weight: 500;
+    }
+    [data-theme="light"] .reply-form-container label {
+        color: var(--text-dark);
+    }
+</style>
+{% endblock extra_head %}
+
+{% block content %}
+<section class="thread-detail-section py-5">
+    <div class="container px-4 py-5">
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb" class="mb-4" data-aos="fade-down">
+            <ol class="breadcrumb glass-card p-3 shadow-sm">
+                <li class="breadcrumb-item"><a href="{% url 'forum:forum_home' %}">Forums</a></li>
+                <li class="breadcrumb-item"><a href="{{ category.get_absolute_url }}">{{ category.name }}</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{ thread.title|truncatechars:50 }}</li>
+            </ol>
+        </nav>
+
+        <!-- Thread Header -->
+        <div class="mb-4 pb-3 border-bottom border-glass" data-aos="fade-up">
+            <h1 class="section-title display-5 mb-2">{{ thread.title }}</h1>
+            <p class="text-muted-custom mb-0">
+                <small>
+                    Started by <strong class="text-accent">{{ thread.author.get_short_name|default:thread.author.email }}</strong> 
+                    on {{ thread.created_at|date:"F j, Y, P" }} 
+                    in <a href="{{ category.get_absolute_url }}" class="text-accent fw-medium">{{ category.name }}</a>
+                </small>
+            </p>
+        </div>
+
+        <!-- Posts List -->
+        {% for post in page_obj.object_list %}
+        <div class="glass-card forum-post-card shadow-sm {% if post.author == request.user %}border-accent-highlight{% endif %}" 
+             id="post-{{ post.id }}" data-aos="fade-up" data-aos-delay="{{ forloop.counter0|multiply:50|add:50 }}">
+            <div class="row g-0">
+                <!-- User Info Sidebar for Post -->
+                <div class="col-md-3 col-lg-2 text-center forum-user-info-sidebar">
+                    <img src="{{ post.author.profile.profile_picture.url }}" alt="{{ post.author.get_short_name|default:post.author.email }}" class="rounded-circle my-3 user-avatar">
+                    <h6 class="mb-1 fw-bold">
+                        <a href="#" class="username-link">{{ post.author.get_short_name|default:post.author.email }}</a>
+                    </h6>
+                    {% with level_info=post.author.profile.current_level_info %}
+                        {% if level_info and level_info.level %}
+                            <span class="badge rounded-pill mb-1" style="background-color: var(--accent-color); color: var(--primary-color); font-size:0.75rem;">
+                                <i class="{{ level_info.level.icon|default:'bi-person' }} me-1"></i>
+                                {{ level_info.level.name }}
+                            </span>
+                        {% endif %}
+                    {% endwith %}
+                    <div class="user-meta-info">
+                        <div>Posts: {{ post.author.forum_posts.count }}</div>
+                        <div>Joined: {{ post.author.date_joined|date:"M Y" }}</div>
+                    </div>
+                </div>
+                <!-- Post Content Area -->
+                <div class="col-md-9 col-lg-10 d-flex flex-column">
+                    <div class="forum-post-content-area flex-grow-1">
+                        <div class="post-text">{{ post.content|linebreaksbr }}</div>
+                    </div>
+                    <div class="forum-post-footer text-end">
+                        Posted: {{ post.created_at|timesince }} ago
+                        {% if post.updated_at|timesince != post.created_at|timesince and post.updated_at|timesince != "0 minutes" %} {# Check if actually edited #}
+                            (Edited: {{ post.updated_at|timesince }} ago)
+                        {% endif %}
+                        {# TODO: Add reply-to-specific-post, edit, delete links later #}
+                        {# <a href="#reply-form" class="btn btn-sm btn-outline-accent ms-2">Reply</a> #}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="glass-card p-5 text-center mt-4 shadow-lg" data-aos="fade-up">
+            <i class="bi bi-chat-left-dots-fill fs-1 text-accent mb-3"></i>
+            <h4 class="fw-bold" style="color:var(--text-light);">No Posts Yet</h4>
+            <p class="lead" style="color:var(--text-muted-custom);">
+                This topic is waiting for its first reply.
+            </p>
+        </div>
+        {% endfor %}
+
+        <!-- Pagination for Posts -->
+        {% if page_obj.has_other_pages %}
+        <div data-aos="fade-up">
+            {% include "partials/_pagination.html" with page_obj=page_obj %}
+        </div>
+        {% endif %}
+
+        <!-- Reply Form -->
+        {% if user.is_authenticated %}
+        <hr class="my-5 border-glass" data-aos="fade-up">
+        <div class="reply-form-container glass-card p-4 p-md-5 shadow-lg" id="reply-form" data-aos="fade-up">
+            <h4 class="mb-3 section-title fs-3" style="color: var(--text-light);">Post Your Reply</h4>
+            <form method="POST" class="create-thread-form"> {# Reusing create-thread-form class for input styling #}
+                {% csrf_token %}
+                {# Crispy Forms will render the PostCreateForm's 'content' field #}
+                {{ post_form|crispy }}
+                <div class="text-end mt-3">
+                    <button type="submit" class="btn btn-accent btn-lg px-4">
+                       <i class="bi bi-send-fill me-1"></i> Post Reply
+                    </button>
+                </div>
+            </form>
+        </div>
+        {% else %}
+        <div class="alert alert-info glass-card mt-5 p-4 text-center" data-aos="fade-up">
+            <p class="mb-1 lead" style="color:var(--text-muted-custom);">
+                Please <a href="{% url 'users:login' %}?next={{ request.path }}" class="fw-bold text-accent">Login</a> 
+                or <a href="{% url 'users:register' %}?next={{ request.path }}" class="fw-bold text-accent">Sign Up</a> to join the discussion.
+            </p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock content %}
+
+{% block extra_js %}
+{{ block.super }}
+<script>
+    // AOS Init
+    if (typeof AOS !== 'undefined' && typeof AOS.init === 'function') {
+        AOS.init({
+            duration: 600,
+            easing: 'ease-out-quad',
+            once: true,
+            offset: 50
+        });
+    }
+</script>
+{% endblock extra_js %}

@@ -1,0 +1,150 @@
+{% extends "base/base.html" %}
+{% load static %}
+{% load course_tags %}
+
+{% block title %}
+    {{ quiz.title }} - {{ block.super }}
+{% endblock title %}
+
+{% block content %}
+<section class="quiz-section py-5">
+    <div class="container px-4 py-5">
+        <!-- Breadcrumb Navigation -->
+        <nav aria-label="breadcrumb" data-aos="fade-up">
+            <ol class="breadcrumb glass-card p-3">
+                <li class="breadcrumb-item">
+                    <a href="{% url 'courses:course_list' %}" class="text-accent">Courses</a>
+                </li>
+                {% if quiz.lesson %}
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'courses:course_detail' course_slug=quiz.lesson.module.course.slug %}" class="text-accent">
+                            {{ quiz.lesson.module.course.title }}
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'courses:lesson_detail' course_slug=quiz.lesson.module.course.slug lesson_slug=quiz.lesson.slug %}" class="text-accent">
+                            {{ quiz.lesson.title }}
+                        </a>
+                    </li>
+                {% endif %}
+                <li class="breadcrumb-item active" aria-current="page" style="color: var(--text-light);">
+                    {{ quiz.title }}
+                </li>
+            </ol>
+        </nav>
+
+        <!-- Quiz Title and Description -->
+        <h1 class="section-title mb-4" data-aos="fade-up" data-aos-delay="100">{{ quiz.title }}</h1>
+        {% if quiz.description %}
+            <p class="lead text-light mb-4" data-aos="fade-up" data-aos-delay="150">{{ quiz.description }}</p>
+        {% endif %}
+
+        <!-- Retake Information -->
+        {% if is_retake %}
+            <div class="alert alert-info glass-card p-3 mb-4" data-aos="fade-up" data-aos-delay="150">
+                <i class="bi bi-info-circle-fill me-1"></i> 
+                This is a retake. {{ attempts_left_message }}
+            </div>
+        {% elif attempts_left_message and attempts_left_message != "Unlimited attempts." %}
+            <div class="alert alert-secondary glass-card p-3 mb-4" data-aos="fade-up" data-aos-delay="150">
+                <i class="bi bi-info-circle-fill me-1"></i> 
+                {{ attempts_left_message }} for this quiz.
+            </div>
+        {% endif %}
+
+        <hr class="border-glass" data-aos="fade-up" data-aos-delay="200">
+
+        <!-- Quiz Form -->
+        <form id="quizSubmissionForm" method="POST" action="{% url 'courses:submit_quiz' quiz_id=quiz.id %}">
+            {% csrf_token %}
+            {% for question in questions %}
+                <div class="glass-card shadow-lg mb-4 p-4" data-aos="fade-up" data-aos-delay="{{ forloop.counter0|multiply:100|add:250 }}">
+                    <div class="card-header bg-transparent border-0">
+                        <h5 class="fw-bold mb-0 text-accent">Question {{ forloop.counter }}</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="fs-5 text-accent mb-4">{{ question.question_text|linebreaksbr }}</p>
+
+                        {% if question.question_type == 'MCQ' %}
+                            {% for choice in question.choices.all %}
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="radio" 
+                                           name="question_{{ question.id }}" 
+                                           id="choice_{{ choice.id }}" value="{{ choice.id }}" required>
+                                    <label class="form-check-label" for="choice_{{ choice.id }}">
+                                        {{ choice.choice_text }}
+                                    </label>
+                                </div>
+                            {% endfor %}
+                        {% elif question.question_type == 'SAQ' %}
+                            <div class="form-group">
+                                <textarea class="form-control glass-textarea" name="question_{{ question.id }}_saq_text"
+                                          rows="4" placeholder="Your answer here..." required></textarea>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            {% empty %}
+                <div class="glass-card shadow-lg p-5 text-center" data-aos="fade-up" data-aos-delay="250">
+                    <i class="bi bi-question-circle fs-1 text-accent mb-3"></i>
+                    <p class="text-muted-custom">This quiz currently has no questions.</p>
+                </div>
+            {% endfor %}
+
+            {% if questions %}
+                <div class="text-center mt-4" data-aos="fade-up" data-aos-delay="300">
+                    <button type="submit" id="submitQuizButton" class="btn btn-primary-custom btn-lg btn-accent">
+                        <span class="submit-text">Submit Quiz</span>
+                        <span id="submitQuizSpinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                    </button>
+                </div>
+            {% endif %}
+        </form>
+    </div>
+</section>
+{% endblock content %}
+
+{% block extra_js %}
+<!-- AOS JS -->
+<script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<!-- Theme-based Spinner Styling -->
+<style>
+    .btn-accent .spinner-border {
+        color: var(--primary-color); /* fallback for dark background buttons */
+    }
+
+    [data-theme="dark"] .btn-accent .spinner-border {
+        color: var(--text-light); /* Spinner contrasts well with dark mode */
+    }
+
+    [data-theme="light"] .btn-accent .spinner-border {
+        color: var(--text-dark); /* Spinner contrasts well with light mode */
+    }
+</style>
+
+<script>
+    AOS.init({
+        duration: 700,
+        easing: 'ease-in-out-quad',
+        once: true,
+        mirror: false,
+        offset: 100
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const quizForm = document.getElementById('quizSubmissionForm');
+        const submitButton = document.getElementById('submitQuizButton');
+        const submitSpinner = document.getElementById('submitQuizSpinner');
+        const submitText = submitButton ? submitButton.querySelector('.submit-text') : null;
+
+        if (quizForm && submitButton && submitSpinner && submitText) {
+            quizForm.addEventListener('submit', function(event) {
+                submitButton.disabled = true;
+                submitSpinner.classList.remove('d-none');
+                submitText.textContent = 'Submitting... Please wait';
+            });
+        }
+    });
+</script>
+{% endblock extra_js %}

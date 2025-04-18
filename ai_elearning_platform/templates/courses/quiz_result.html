@@ -1,0 +1,200 @@
+{% extends "base/base.html" %}
+{% load static %}
+{% load course_tags %}
+
+{% block title %}Quiz Results: {{ quiz.title }} - {{ block.super }}{% endblock title %}
+
+{% block extra_head %}
+<style>
+    .border-success-custom { border-left: 4px solid var(--progress-color) !important; }
+    .border-danger-custom { border-left: 4px solid #dc3545 !important; }
+    .border-secondary-custom { border-left: 4px solid var(--secondary-color) !important; }
+    [data-theme="light"] .border-secondary-custom { border-left: 4px solid var(--light-bg-alt) !important; }
+
+    .quiz-results-section .text-light, 
+    .quiz-results-section .glass-card h5, 
+    .quiz-results-section .glass-card p,
+    .quiz-results-section .glass-card strong {
+        color: var(--text-light) !important;
+    }
+    [data-theme="light"] .quiz-results-section .text-light,
+    [data-theme="light"] .quiz-results-section .glass-card h5,
+    [data-theme="light"] .quiz-results-section .glass-card p,
+    [data-theme="light"] .quiz-results-section .glass-card strong {
+        color: var(--text-dark) !important;
+    }
+
+    .quiz-results-section .text-muted-custom,
+    .quiz-results-section .glass-card .text-muted-custom {
+         color: var(--text-muted-custom) !important;
+    }
+    .quiz-results-section .text-accent {
+        color: var(--accent-color) !important;
+    }
+    .quiz-results-section .text-success {
+        color: var(--progress-color) !important;
+    }
+    .quiz-results-section .text-danger {
+        color: #dc3545 !important;
+    }
+    .quiz-results-section .border-info {
+        border-left: 4px solid var(--accent-color) !important;
+    }
+</style>
+{% endblock extra_head %}
+
+{% block content %}
+<section class="quiz-results-section py-5">
+    <div class="container px-4 py-5">
+        <h1 class="section-title mb-4" data-aos="fade-up">{{ quiz.title }} Results</h1>
+        <p class="mb-2" data-aos="fade-up" data-aos-delay="100" style="color: var(--text-light);">
+            Attempted by: <strong style="color: var(--accent-color);">{{ attempt.user.username }}</strong> on {{ attempt.completed_at|date:"d M Y, H:i" }}
+        </p>
+
+        {% if attempt.score is not None %}
+            <h3 class="mb-3" data-aos="fade-up" data-aos-delay="150">
+                Your Score:
+                <span class="badge rounded-pill {% if attempt.score >= 50 %}bg-success{% else %}bg-danger{% endif %} fs-3 p-2">
+                    {{ attempt.score|floatformat:0 }}%
+                </span>
+            </h3>
+
+            {% if saqs_requiring_review_count > 0 %}
+                <p class="alert alert-warning glass-card p-2 small" data-aos="fade-up" data-aos-delay="180">
+                    <i class="bi bi-exclamation-triangle-fill me-1"></i>
+                    This is a preliminary score. {{ saqs_requiring_review_count }} Short Answer(s) require instructor review, which may adjust your final grade.
+                </p>
+            {% elif has_saq %}
+                <p class="text-muted-custom small mb-4" data-aos="fade-up" data-aos-delay="200">
+                    <i class="bi bi-info-circle-fill"></i> Short Answer scores were evaluated by AI. Your instructor may choose to review them.
+                </p>
+            {% endif %}
+        {% else %}
+            <h3 class="mb-3" data-aos="fade-up" data-aos-delay="150" style="color: var(--accent-color);">
+                <i class="bi bi-hourglass-split"></i> Quiz Pending Final Grading
+            </h3>
+            <p class="text-muted-custom small mb-4" data-aos="fade-up" data-aos-delay="200">
+                This quiz contains Short Answer Questions that are evaluated by AI and/or require instructor review for a final score.
+            </p>
+        {% endif %}
+
+        <hr class="my-4" data-aos="fade-up" data-aos-delay="250" style="border-color: rgba(var(--text-light-rgb, 248,249,250),0.2) !important;">
+
+        <h4 class="section-title mt-5 mb-4" data-aos="fade-up" data-aos-delay="300">Your Answers Breakdown:</h4>
+        {% for user_ans in user_answers %}
+            <div class="glass-card shadow-lg mb-4 p-3 p-md-4 {% if user_ans.question.question_type == 'MCQ' and user_ans.selected_choice and user_ans.selected_choice.is_correct %}border-success-custom{% elif user_ans.question.question_type == 'MCQ' and user_ans.selected_choice %}border-danger-custom{% else %}border-secondary-custom{% endif %}"
+                 data-aos="fade-up" data-aos-delay="{{ forloop.counter0|multiply:50|add:350 }}">
+
+                <div class="mb-3">
+                    <h5 class="fw-bold mb-1 d-flex align-items-center" style="color: var(--text-light);">
+                        <span class="badge me-2" style="background-color: var(--secondary-color); color: var(--accent-color);">Q{{ forloop.counter }}</span>
+                        {{ user_ans.question.question_text|linebreaksbr }}
+                    </h5>
+                </div>
+
+                <div>
+                    {% if user_ans.question.question_type == 'MCQ' %}
+                        <p class="mb-2" style="color: var(--text-light);">
+                            <strong>Your Answer:</strong>
+                            {% if user_ans.selected_choice %}
+                                <span class="fw-medium {% if user_ans.selected_choice.is_correct %}text-success{% else %}text-danger{% endif %}">
+                                    {{ user_ans.selected_choice.choice_text }}
+                                </span>
+                                {% if user_ans.selected_choice.is_correct %}
+                                    <i class="bi bi-check-circle-fill text-success ms-1"></i> Correct
+                                {% else %}
+                                    <i class="bi bi-x-circle-fill text-danger ms-1"></i> Incorrect
+                                {% endif %}
+                            {% else %}
+                                <span class="text-muted-custom"><em>Not Answered</em></span>
+                            {% endif %}
+                        </p>
+                        {% if not user_ans.selected_choice or not user_ans.selected_choice.is_correct %}
+                            <p class="mb-1 small" style="color: var(--text-light);">
+                                <strong class="text-muted-custom">Correct Answer(s):</strong>
+                            </p>
+                            <ul class="list-unstyled ps-3">
+                                {% for choice in user_ans.question.choices.all %}
+                                    {% if choice.is_correct %}
+                                        <li class="text-success small"><i class="bi bi-check-lg me-1"></i>{{ choice.choice_text }}</li>
+                                    {% endif %}
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    {% elif user_ans.question.question_type == 'SAQ' %}
+                        <p class="mb-2" style="color: var(--text-light);"><strong>Your Answer (Short Answer):</strong></p>
+                        <div class="glass-card p-3 mb-3" style="background-color: rgba(var(--secondary-color-rgb, 31,64,104), 0.3); border-radius: var(--radius-sm);">
+                            <p class="mb-0" style="color: var(--text-light);"><em>{{ user_ans.short_answer_text|default:"Not Answered"|linebreaksbr }}</em></p>
+                        </div>
+
+                        {% if user_ans.ai_score is not None %}
+                            <div class="glass-card p-3 mb-3" style="background-color: rgba(var(--secondary-color-rgb, 31,64,104), 0.3); border-radius: var(--radius-sm);">
+                                <strong style="color: var(--text-light);">AI Preliminary Score:</strong>
+                                <span class="badge rounded-pill fs-6 ms-2" style="background-color: var(--accent-color); color: var(--primary-color);">{{ user_ans.ai_score }}/10</span>
+                                {% if user_ans.needs_review %}
+                                    <span class="badge bg-warning text-dark ms-2"><i class="bi bi-exclamation-triangle-fill me-1"></i>Needs Instructor Review</span>
+                                {% endif %}
+                                <p class="text-muted-custom small mt-2 mb-0">
+                                    <i class="bi bi-info-circle"></i> This is an AI-generated score and may be subject to change after instructor review.
+                                </p>
+                            </div>
+                        {% endif %}
+
+                        {% if user_ans.feedback %}
+                            <div class="glass-card p-3 border-info shadow-sm" style="background-color: rgba(var(--secondary-color-rgb, 31,64,104), 0.3); border-radius: var(--radius-sm);">
+                                <h6 class="mb-2" style="color: var(--accent-color);"><i class="bi bi-robot me-1"></i> AI Feedback:</h6>
+                                <div class="mb-0 fst-italic" style="color: var(--text-light); font-size: 0.95rem;">{{ user_ans.feedback|linebreaksbr }}</div>
+                            </div>
+                        {% endif %}
+                    {% endif %}
+
+                    {% if user_ans.question.explanation and user_ans.selected_choice and user_ans.selected_choice.is_correct %}
+                        <div class="glass-card p-3 mt-3" style="background-color: rgba(var(--secondary-color-rgb, 31,64,104), 0.2); border-radius: var(--radius-sm);">
+                            <h6 class="mb-2" style="color: var(--accent-color);">Explanation:</h6>
+                            <p class="mb-0" style="color: var(--text-light);">{{ user_ans.question.explanation|linebreaksbr }}</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        {% empty %}
+            <div class="glass-card shadow-lg p-5 text-center" data-aos="fade-up" data-aos-delay="350">
+                <i class="bi bi-exclamation-circle fs-1 text-accent mb-3"></i>
+                <p class="text-muted-custom">No answers recorded for this attempt.</p>
+            </div>
+        {% endfor %}
+
+        <div class="d-flex flex-column flex-sm-row justify-content-center gap-3 mt-5" data-aos="fade-up" data-aos-delay="400">
+            <a href="{% if attempt.quiz.lesson %}{% url 'courses:lesson_detail' course_slug=attempt.quiz.lesson.module.course.slug lesson_slug=attempt.quiz.lesson.slug %}{% else %}{% url 'courses:course_list' %}{% endif %}"
+               class="btn btn-accent btn-lg">
+                <i class="bi bi-arrow-left-circle me-1"></i> Back to {% if attempt.quiz.lesson %}Lesson{% else %}Courses{% endif %}
+            </a>
+            
+            {% if not attempt.passed %}
+                {% if attempt.quiz.max_attempts == 0 or user_attempts_count < attempt.quiz.max_attempts %}
+                    <a href="{% url 'courses:quiz_detail' quiz_id=attempt.quiz.id %}" class="btn btn-outline-accent btn-lg">
+                        <i class="bi bi-arrow-clockwise me-1"></i> Retake Quiz 
+                        {% if attempt.quiz.max_attempts > 0 %}
+                            (Attempt {{ user_attempts_count|add:1 }} of {{ attempt.quiz.max_attempts }})
+                        {% endif %}
+                    </a>
+                {% else %}
+                    <button class="btn btn-outline-secondary btn-lg" disabled>Max Attempts Reached</button>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock content %}
+
+{% block extra_js %}
+<script>
+    if (typeof AOS !== 'undefined' && typeof AOS.init === 'function') {
+        AOS.init({
+            duration: 600,
+            easing: 'ease-out-quad',
+            once: true,
+            offset: 50
+        });
+    }
+</script>
+{% endblock extra_js %}

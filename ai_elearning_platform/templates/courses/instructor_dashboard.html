@@ -1,0 +1,182 @@
+{% extends "base/base.html" %}
+{% load static %}
+
+{% block title %}{{ page_title|default:"Instructor Dashboard" }} - {{ block.super }}{% endblock title %}
+
+{% block extra_head %}
+{{ block.super }}
+<style>
+    /* Re-using stat-card styles from admin_dashboard, or define here/in custom.css */
+    .stat-card { /* Assumes glass-card is base */
+        transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; */
+    }
+    .stat-card:hover {
+         transform: translateY(-3px); */
+    }
+    .stat-card .stat-value { color: var(--accent-color); font-weight: 900; }
+    .stat-card .stat-label { color: var(--text-muted-custom); font-weight: 500; }
+    .stat-card .stat-icon { font-size: 2.5rem; opacity: 0.2; color: var(--accent-color); }
+
+    .instructor-dashboard-section { margin-bottom: 2.5rem; }
+    .course-management-table th { color: var(--accent-color); font-weight: 600; }
+    .course-management-table td a { color: var(--accent-color); text-decoration: none; font-weight: 500; }
+    .course-management-table td a:hover { text-decoration: underline; color: var(--progress-color); }
+    .action-btn-group .btn { margin-right: 0.5rem; }
+</style>
+{% endblock extra_head %}
+
+{% block content %}
+<div class="container-fluid mt-4"> {# Wider layout for dashboards #}
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="display-5 fw-bold">{{ page_title|default:"Instructor Dashboard" }}</h1>
+        <a href="{% url 'courses:instructor_create_course' %}" target="_blank" class="btn btn-accent">
+            <i class="bi bi-plus-circle-fill me-1"></i> Create New Course
+        </a>
+    </div>
+
+    <!-- Quick Stats Overview -->
+    <section class="instructor-dashboard-section" data-aos="fade-up">
+        <h2 class="mb-3 fs-4 fw-semibold" style="color: var(--text-light);">My Statistics</h2>
+        <div class="row g-3">
+            <div class="col-xl-3 col-md-6">
+                <div class="glass-card p-3 shadow-sm h-100 stat-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="stat-label text-uppercase small">Courses Taught</div>
+                            <div class="stat-value fs-2">{{ total_courses_taught }}</div>
+                        </div>
+                        <i class="bi bi-collection-play-fill stat-icon"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6">
+                <div class="glass-card p-3 shadow-sm h-100 stat-card">
+                     <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="stat-label text-uppercase small">Total Students</div>
+                            <div class="stat-value fs-2">{{ total_unique_students }}</div>
+                        </div>
+                        <i class="bi bi-people-fill stat-icon"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6">
+                <div class="glass-card p-3 shadow-sm h-100 stat-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="stat-label text-uppercase small">Avg. Course Progress</div>
+                            <div class="stat-value fs-2">{{ overall_instructor_course_avg_progress }}%</div>
+                        </div>
+                        <i class="bi bi-graph-up-arrow stat-icon"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6">
+                <div class="glass-card p-3 shadow-sm h-100 stat-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="stat-label text-uppercase small">Pending Reviews (SAQs)</div>
+                            <div class="stat-value fs-2">{{ pending_quiz_reviews|default:"0" }}</div> {# Pass this from view #}
+                        </div>
+                        <i class="bi bi-pen-fill stat-icon"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- My Courses Management -->
+    <section class="instructor-dashboard-section" data-aos="fade-up" data-aos-delay="100">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 class="fs-4 fw-semibold mb-0" style="color: var(--text-light);">My Courses</h2>
+            {# Optional: Link to a dedicated "Manage My Courses" page if table gets too long #}
+        </div>
+        <div class="glass-card p-0 shadow-sm"> {# p-0 for table to fit edge-to-edge #}
+            {% if my_courses_data %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0 course-management-table" style="color: var(--text-light); --bs-table-hover-color: var(--text-dark); --bs-table-hover-bg: rgba(var(--accent-color-rgb), 0.15);">
+                    <thead style="border-bottom: 2px solid var(--accent-color);">
+                        <tr>
+                            <th>Course Title</th>
+                            <th class="text-center">Category</th>
+                            <th class="text-center">Students</th>
+                            <th class="text-center">Avg. Progress</th>
+                            <th class="text-center">Avg. Rating</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item_data in my_courses_data %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'courses:course_detail' course_slug=item_data.course.slug %}" target="_blank">{{ item_data.course.title }}</a>
+                                <small class="d-block text-muted-custom">Last updated: {{ item_data.course.updated_at|date:"d M Y" }}</small>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge" style="background-color: var(--secondary-color); color: var(--accent-color);">
+                                    {{ item_data.course.category.name|default:"N/A" }}
+                                </span>
+                            </td>
+                            <td class="text-center">{{ item_data.num_students }}</td>
+                            <td class="text-center">
+                                {% if item_data.average_progress is not None %}
+                                <div class="progress mx-auto" style="height: 1rem; background-color: var(--secondary-color); width: 100px;">
+                                    <div class="progress-bar small" role="progressbar" style="width: {{ item_data.average_progress }}%;" aria-valuenow="{{ item_data.average_progress }}" aria-valuemin="0" aria-valuemax="100">
+                                        {{ item_data.average_progress }}%
+                                    </div>
+                                </div>
+                                {% else %}-{% endif %}
+                            </td>
+                            <td class="text-center">
+                                {% if item_data.avg_rating is not None %}
+                                    <i class="bi bi-star-fill me-1" style="color: gold;"></i> {{ item_data.avg_rating }} 
+                                    <small class="text-muted-custom">({{ item_data.num_reviews }})</small>
+                                {% else %}-{% endif %}
+                            </td>
+                            <td class="text-center action-btn-group">
+                                <a href="{% url 'admin:courses_course_change' item_data.course.id %}" target="_blank" class="btn btn-sm btn-outline-light p-1" style="border-color: var(--accent-color); color:var(--accent-color);" title="Edit Course">
+                                    <i class="bi bi-pencil-fill"></i>
+                                </a>
+                                <a href="{% url 'courses:instructor_course_students' course_slug=item_data.course.slug %}" class="btn btn-sm btn-outline-light p-1" style="border-color: var(--accent-color); color:var(--accent-color);" title="View Students & Progress"> {# Link to detailed student list for this course #}
+                                    <i class="bi bi-people-fill"></i>
+                                </a>
+                                <a href="#" class="btn btn-sm btn-outline-light p-1" style="border-color: var(--accent-color); color:var(--accent-color);" title="Manage Quizzes"> {# Link to quizzes for this course #}
+                                    <i class="bi bi-card-checklist"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="p-4 text-center">
+                <p style="color: var(--text-muted-custom);">You haven't created any courses yet.</p>
+                <a href="{% url 'courses:instructor_create_course' %}" target="_blank" class="btn btn-accent">
+                    <i class="bi bi-plus-circle-fill me-1"></i> Create Your First Course
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </section>
+
+    {# Placeholder for Recent Activity / Alerts for the instructor #}
+     <section class="instructor-dashboard-section" data-aos="fade-up" data-aos-delay="200">
+        <h2 class="fs-4 fw-semibold mb-3" style="color: var(--text-light);">Recent Activity</h2>
+        <div class="glass-card p-3 shadow-sm">
+            <p style="color: var(--text-muted-custom);">Recent student enrollments, quiz submissions, or forum posts related to your courses will appear here.</p>
+        </div>
+    </section> 
+
+</div>
+{% endblock content %}
+
+{% block extra_js %}
+{{ block.super }}
+<script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script>
+    if (typeof AOS !== 'undefined' && typeof AOS.init === 'function') {
+        AOS.init({ duration: 600, once: true, offset: 50 });
+    }
+</script>
+{% endblock extra_js %}

@@ -1,0 +1,636 @@
+{% extends "base/base.html" %}
+{% load static widget_tweaks %}
+
+{% block title %}{{ course.title }} - Details - {{ block.super }}{% endblock title %}
+
+{% block extra_css %}
+<style>
+ 
+:root {
+    --accent-color-rgb: 0, 188, 212;
+    --secondary-color-rgb: 31, 64, 104;
+    --text-light-rgb: 248, 249, 250;
+    --success-rgb: 40, 167, 69;
+    --light-bg-alt-rgb: 200, 200, 200;
+    --progress-color: #28a745;
+    --radius-sm: 0.25rem;
+    --transition: all 0.3s ease;
+    --text-dark: #0a192f;
+    --light-bg: #eceff1;
+}
+
+/* Course Detail Section */
+.course-detail-section {
+    padding: 4rem 0;
+    position: relative;
+    z-index: 1;
+}
+
+/* Glass Card */
+.course-detail-section .glass-card {
+    background: rgba(255, 255, 255, 0.02);
+    box-shadow: var(--shadow-neumorph);
+    border: 1px solid rgba(44, 62, 80, 0.10);
+    border-radius: var(--radius-sm);
+    backdrop-filter: blur(14px) saturate(180%);
+    transition: var(--transition);
+}
+
+html[data-theme="light"] .course-detail-section .glass-card {
+    background: rgba(255, 255, 255, 0.88);
+    box-shadow: var(--shadow-neumorph);
+    border: 1px solid rgba(44, 62, 80, 0.09);
+}
+
+.course-detail-section .glass-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg-hover);
+}
+
+/* Section Title */
+.course-detail-section .section-title {
+    color: var(--text-light);
+    font-weight: 900;
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+html[data-theme="light"] .course-detail-section .section-title {
+    color: var(--text-dark);
+}
+
+/* Rating Stars */
+.course-detail-section .rating-stars .bi-star-fill,
+.course-detail-section .rating-stars .bi-star-half {
+    color: var(--accent-color);
+}
+
+.course-detail-section .rating-stars .bi-star {
+    color: var(--secondary-color);
+}
+
+html[data-theme="light"] .course-detail-section .rating-stars .bi-star {
+    color: var(--light-bg-alt);
+}
+
+/* Review Card */
+.course-detail-section .review-card {
+    border-left: 3px solid var(--secondary-color);
+}
+
+html[data-theme="light"] .course-detail-section .review-card {
+    border-left-color: var(--light-bg-alt);
+}
+
+.course-detail-section .review-card .user-avatar {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border: 2px solid var(--accent-color);
+}
+
+/* Input Fields */
+.course-detail-section .glass-card-input,
+.course-detail-section .form-select.glass-card-input {
+    background: rgba(var(--secondary-color-rgb), 0.5) !important;
+    color: var(--text-light) !important;
+    border: 1px solid rgba(var(--accent-color-rgb), 0.2) !important;
+    border-radius: var(--radius-sm) !important;
+    padding: 0.5rem 0.75rem;
+    transition: var(--transition);
+}
+
+.course-detail-section .glass-card-input::placeholder {
+    color: rgba(var(--text-light-rgb), 0.6);
+}
+
+.course-detail-section .glass-card-input:focus,
+.course-detail-section .form-select.glass-card-input:focus {
+    background: rgba(var(--secondary-color-rgb), 0.7) !important;
+    border-color: var(--accent-color) !important;
+    box-shadow: 0 0 0 0.2rem rgba(var(--accent-color-rgb), 0.25);
+    color: var(--text-light) !important;
+}
+
+html[data-theme="light"] .course-detail-section .glass-card-input,
+html[data-theme="light"] .course-detail-section .form-select.glass-card-input {
+    background: rgba(var(--light-bg-alt-rgb), 0.8) !important;
+    color: var(--text-dark) !important;
+    border-color: rgba(var(--secondary-color-rgb), 0.3) !important;
+}
+
+html[data-theme="light"] .course-detail-section .glass-card-input::placeholder {
+    color: rgba(var(--text-dark-rgb), 0.6);
+}
+
+html[data-theme="light"] .course-detail-section .glass-card-input:focus,
+html[data-theme="light"] .course-detail-section .form-select.glass-card-input:focus {
+    background: var(--light-bg) !important;
+    border-color: var(--accent-color) !important;
+    box-shadow: 0 0 0 0.2rem rgba(var(--accent-color-rgb), 0.25);
+    color: var(--text-dark) !important;
+}
+
+html[data-theme="dark"] .course-detail-section .form-select.glass-card-input {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%2300bcd4' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+}
+
+/* Lesson Items */
+.course-detail-section .completed-lesson {
+    background: rgba(var(--success-rgb), 0.15);
+}
+
+.course-detail-section .lesson-item a.disabled-link {
+    color: var(--text-muted-custom) !important;
+    pointer-events: none;
+    cursor: not-allowed;
+}
+
+.course-detail-section .lesson-item .lock-icon {
+    color: var(--text-muted-custom);
+    font-size: 0.9em;
+}
+
+html[data-theme="light"] .course-detail-section .lesson-item a.disabled-link {
+    color: var(--text-muted-custom) !important;
+}
+
+html[data-theme="light"] .course-detail-section .lesson-item .lock-icon {
+    color: var(--text-muted-custom);
+}
+
+/* Accordion */
+.course-detail-section .accordion-button {
+    background: transparent;
+    color: var(--text-light);
+    border: none;
+}
+
+html[data-theme="light"] .course-detail-section .accordion-button {
+    color: var(--text-dark);
+}
+
+.course-detail-section .accordion-button:not(.collapsed) {
+    background: rgba(var(--accent-color-rgb), 0.1);
+}
+
+.course-detail-section .accordion-body {
+    background: transparent;
+}
+
+.course-detail-section .list-group-item {
+    background: transparent;
+    border: none;
+    padding: 0.75rem 1rem;
+}
+
+/* Buttons */
+.course-detail-section .btn-primary-custom {
+    background: var(--accent-color);
+    color: var(--primary-color);
+    font-weight: 600;
+    border-radius: var(--radius-sm);
+    padding: 0.75rem 1.5rem;
+    transition: var(--transition);
+}
+
+.course-detail-section .btn-primary-custom:hover,
+.course-detail-section .btn-primary-custom:focus {
+    background: var(--progress-color);
+    transform: translateY(-2px);
+}
+
+html[data-theme="light"] .course-detail-section .btn-primary-custom {
+    color: var(--text-dark);
+}
+
+.course-detail-section .btn-secondary-custom {
+    background: transparent;
+    border: 2px solid var(--accent-color);
+    color: var(--accent-color);
+    font-weight: 600;
+    border-radius: var(--radius-sm);
+    padding: 0.75rem 1.5rem;
+    transition: var(--transition);
+}
+
+.course-detail-section .btn-secondary-custom:hover,
+.course-detail-section .btn-secondary-custom:focus {
+    background: var(--accent-color);
+    color: var(--primary-color);
+    transform: translateY(-2px);
+}
+
+html[data-theme="light"] .course-detail-section .btn-secondary-custom:hover,
+html[data-theme="light"] .course-detail-section .btn-secondary-custom:focus {
+    color: var(--text-dark);
+}
+
+/* Progress Bar */
+.course-detail-section .progress {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: var(--radius-sm);
+}
+
+.course-detail-section .progress-bar {
+    background: var(--progress-color);
+}
+
+/* Sidebar */
+.course-detail-section .sidebar .list-group-item {
+    background: transparent;
+    border: none;
+    color: var(--text-light);
+}
+
+html[data-theme="light"] .course-detail-section .sidebar .list-group-item {
+    color: var(--text-dark);
+}
+
+.course-detail-section .sidebar .badge {
+    background: var(--secondary-color);
+    color: var(--text-light);
+}
+
+html[data-theme="light"] .course-detail-section .sidebar .badge {
+    background: var(--light-bg-alt);
+    color: var(--text-dark);
+}
+
+/* Course Summary */
+.course-detail-section .course-summary {
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: var(--radius-sm);
+    padding: 1.5rem;
+    backdrop-filter: blur(14px) saturate(180%);
+    box-shadow: var(--shadow-neumorph);
+    transition: var(--transition);
+}
+
+html[data-theme="light"] .course-detail-section .course-summary {
+    background: rgba(255, 255, 255, 0.88);
+    box-shadow: var(--shadow-neumorph);
+}
+
+.course-detail-section .course-summary:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg-hover);
+}
+
+.course-detail-section .course-summary h5 {
+    color: var(--text-light);
+    font-weight: 700;
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid rgba(var(--accent-color-rgb), 0.3);
+    padding-bottom: 0.5rem;
+}
+
+html[data-theme="light"] .course-detail-section .course-summary h5 {
+    color: var(--text-dark);
+}
+
+.course-detail-section .course-summary .list-group-item {
+    padding: 0.75rem 0;
+    color: var(--text-light);
+    font-size: 1rem;
+    transition: var(--transition);
+}
+
+html[data-theme="light"] .course-detail-section .course-summary .list-group-item {
+    color: var(--text-dark);
+}
+
+.course-detail-section .course-summary .list-group-item:hover {
+    background: rgba(var(--accent-color-rgb), 0.1);
+    border-radius: var(--radius-sm);
+}
+
+.course-detail-section .course-summary .list-group-item i {
+    color: var(--accent-color);
+    margin-right: 0.5rem;
+}
+
+.course-detail-section .course-summary .badge {
+    background: var(--accent-color);
+    color: var(--primary-color);
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-sm);
+    transition: var(--transition);
+}
+
+html[data-theme="light"] .course-detail-section .course-summary .badge {
+    background: var(--progress-color);
+    color: var(--text-dark);
+}
+
+.course-detail-section .course-summary .badge:hover {
+    background: var(--progress-color);
+    transform: scale(1.05);
+}
+</style>
+{% endblock extra_css %}
+{% block content %}
+<section class="course-detail-section py-5">
+    <div class="container px-4 py-5">
+        <div class="row">
+            <div class="col-lg-8">
+                <h1 class="section-title mb-3" data-aos="fade-up">{{ course.title }}</h1>
+                {% if average_rating is not None %}
+                    <div class="mb-3 d-flex align-items-center" data-aos="fade-up" data-aos-delay="50">
+                        <span class="rating-stars me-2">
+                            {% for i in "12345"|make_list %}
+                                {% if average_rating >= i|add:0 %}
+                                    <i class="bi bi-star-fill"></i>
+                                {% elif average_rating >= i|add:"-0.5" %}
+                                    <i class="bi bi-star-half"></i>
+                                {% else %}
+                                    <i class="bi bi-star"></i>
+                                {% endif %}
+                            {% endfor %}
+                        </span>
+                        <span class="fw-bold me-1" style="color: var(--text-light);">{{ average_rating|floatformat:1 }}</span>
+                        <span class="text-muted-custom small">({{ total_reviews_count }} review{{ total_reviews_count|pluralize }})</span>
+                    </div>
+                {% else %}
+                    <p class="text-muted-custom small mb-3" data-aos="fade-up" data-aos-delay="50">
+                        <i class="bi bi-stars"></i> Be the first to review this course!
+                    </p>
+                {% endif %}
+                <p class="lead mb-3" style="color: var(--text-muted-custom);" data-aos="fade-up" data-aos-delay="100">{{ course.description }}</p>
+                <p data-aos="fade-up" data-aos-delay="200">
+                    <strong>Instructor:</strong> 
+                    <span class="badge rounded-pill px-3 py-2" style="background: var(--secondary-color); color: var(--accent-color); font-weight: 500;">
+                        <i class="bi bi-person-fill"></i> {{ course.instructor.get_short_name|default:course.instructor.email }}
+                    </span>
+                    {% if course.category %}
+                        <strong class="ms-3">Category:</strong> 
+                        <a href="{{ course.category.get_absolute_url }}" class="badge rounded-pill ms-1" style="background-color: var(--progress-color); color: var(--text-light); text-decoration: none;">
+                            {{ course.category.name }}
+                        </a>
+                    {% endif %}
+                </p>
+                {% if user.is_authenticated %}
+                    {% if is_enrolled %}
+                        <p data-aos="fade-up" data-aos-delay="300">
+                            <span class="badge rounded-pill bg-success">You are enrolled in this course.</span>
+                        </p>
+                    {% else %}
+                        <a href="{% url 'courses:enroll_course' course_slug=course.slug %}" class="btn btn-primary-custom btn-lg mb-3" data-aos="fade-up" data-aos-delay="300">Start This Course</a>
+                    {% endif %}
+                {% else %}
+                    <p data-aos="fade-up" data-aos-delay="300">
+                        <a href="{% url 'users:login' %}?next={{ request.path }}" class="btn btn-secondary-custom btn-lg mb-3">Login to Start Course</a>
+                    </p>
+                {% endif %}
+                {% if user.is_authenticated and total_lessons_in_course > 0 %}
+                    <div class="progress mb-3 glass-card" style="height: 25px;" data-aos="fade-up" data-aos-delay="100">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: {{ course_progress_percent }}%;" aria-valuenow="{{ course_progress_percent }}" aria-valuemin="0" aria-valuemax="100">
+                            {{ course_progress_percent }}% Complete
+                        </div>
+                    </div>
+                    <p class="text-muted small" style="color: var(--text-muted-custom);" data-aos="fade-up" data-aos-delay="150">
+                        {{ completed_lessons_in_course_count }} out of {{ total_lessons_in_course }} lessons completed.
+                    </p>
+                {% endif %}
+                <h2 class="section-title mt-5" data-aos="fade-up">Course Content</h2>
+                {% if modules_with_progress %}
+                    <div class="accordion glass-card" id="courseModulesAccordion" data-aos="fade-up" data-aos-delay="200">
+                        {% for item in modules_with_progress %}
+                            <div class="accordion-item glass-card">
+                                <h2 class="accordion-header" id="heading{{ item.module.id }}">
+                                    <button class="accordion-button {% if not forloop.first %}collapsed{% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ item.module.id }}" aria-expanded="{% if forloop.first %}true{% else %}false{% endif %}" aria-controls="collapse{{ item.module.id }}">
+                                        <strong>Module {{ item.module.order }}: {{ item.module.title }}</strong>
+                                        {% if user.is_authenticated and item.total_lessons > 0 %}
+                                            <span class="badge rounded-pill {% if item.progress_percent == 100 %}bg-success{% else %}bg-info{% endif %} ms-auto me-3">
+                                                {{ item.progress_percent }}%
+                                            </span>
+                                        {% endif %}
+                                    </button>
+                                </h2>
+                                <div id="collapse{{ item.module.id }}" class="accordion-collapse collapse {% if forloop.first %}show{% endif %}" aria-labelledby="heading{{ item.module.id }}" data-bs-parent="#courseModulesAccordion">
+                                    <div class="accordion-body">
+                                        {% if item.module.description %}
+                                            <p class="small" style="color: var(--text-muted-custom);">{{ item.module.description }}</p>
+                                        {% endif %}
+                                        {% if item.lessons_with_status %}
+                                            <ul class="list-group list-group-flush">
+                                                {% for lesson_data in item.lessons_with_status %}
+                                                    <li class="list-group-item glass-card d-flex justify-content-between align-items-center {% if lesson_data.is_completed %}completed-lesson{% endif %} {% if not lesson_data.is_unlocked %}lesson-locked{% endif %} lesson-item">
+                                                        {% if lesson_data.is_unlocked %}
+                                                            <a href="{% url 'courses:lesson_detail' course_slug=course.slug lesson_slug=lesson_data.lesson.slug %}" 
+                                                               class="text-decoration-none {% if lesson_data.is_completed %}text-decoration-line-through text-muted-custom{% else %}text-accent{% endif %}">
+                                                                <i class="bi bi-play-circle-fill me-2 text-accent opacity-75"></i>
+                                                                Lesson {{ lesson_data.lesson.order }}: {{ lesson_data.lesson.title }}
+                                                            </a>
+                                                        {% else %}
+                                                            <span class="text-decoration-none disabled-link">
+                                                                <i class="bi bi-lock-fill me-2 lock-icon"></i>
+                                                                Lesson {{ lesson_data.lesson.order }}: {{ lesson_data.lesson.title }}
+                                                            </span>
+                                                        {% endif %}
+                                                        {% if lesson_data.is_unlocked and lesson_data.is_completed %}
+                                                            <span class="badge rounded-pill bg-success"><i class="bi bi-check-lg"></i> Completed</span>
+                                                        {% elif lesson_data.is_unlocked and not lesson_data.is_completed %}
+                                                            <span class="badge rounded-pill bg-light text-dark">Pending</span>
+                                                        {% elif not lesson_data.is_unlocked %}
+                                                            <i class="bi bi-lock-fill lock-icon" title="Complete previous lesson to unlock"></i>
+                                                        {% endif %}
+                                                    </li>
+                                                {% endfor %}
+                                            </ul>
+                                        {% else %}
+                                            <p class="small" style="color: var(--text-muted-custom);">No lessons in this module yet.</p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-center" style="color: var(--text-muted-custom);" data-aos="fade-up" data-aos-delay="200">
+                        No modules available for this course yet.
+                    </p>
+                {% endif %}
+                <hr class="my-5" style="border-color: rgba(var(--text-light-rgb), 0.2) !important;">
+                <h2 class="section-title mt-5" data-aos="fade-up">
+                    Student Reviews 
+                    <span class="badge bg-accent-faded rounded-pill ms-2" style="color: var(--accent-color); background-color: rgba(var(--accent-color-rgb), 0.1);">
+                        {{ total_reviews_count }}
+                    </span>
+                </h2>
+                {% if user_can_review %}
+                    <div class="glass-card p-3 p-md-4 my-4 shadow" data-aos="fade-up">
+                        <h5 class="mb-3 fw-semibold" style="color: var(--text-light);">Write Your Review for "{{ course.title }}"</h5>
+                        <form method="POST" action="{% url 'courses:submit_course_review' course_slug=course.slug %}">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label for="{{ review_form.rating.id_for_label }}" class="form-label" style="color: var(--text-light);">{{ review_form.rating.label }}:</label>
+                                {% render_field review_form.rating class="form-select glass-card-input" %}
+                                {% if review_form.rating.errors %}
+                                    <div class="invalid-feedback d-block mt-1">
+                                        {% for error in review_form.rating.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="mb-3">
+                                <label for="{{ review_form.comment.id_for_label }}" class="form-label" style="color: var(--text-light);">{{ review_form.comment.label }}:</label>
+                                {% render_field review_form.comment class="form-control glass-card-input" rows="4" placeholder="Share your thoughts..." %}
+                                {% if review_form.comment.errors %}
+                                    <div class="invalid-feedback d-block mt-1">
+                                        {% for error in review_form.comment.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <button type="submit" class="btn btn-primary-custom mt-2">Submit Review</button>
+                        </form>
+                    </div>
+                {% elif request.user.is_authenticated and existing_review %}
+                    <div class="glass-card p-3 p-md-4 my-4 alert alert-info" data-aos="fade-up" style="color: var(--text-light); background-color: rgba(var(--accent-color-rgb), 0.1); border-color: rgba(var(--accent-color-rgb), 0.3);">
+                        <h5 class="mb-1 fw-semibold" style="color: var(--accent-color);"><i class="bi bi-check-circle-fill"></i> You've already reviewed this course!</h5>
+                        <p class="small mb-0">Your rating: 
+                            <span class="rating-stars">
+                                {% for i in "12345"|make_list %}
+                                    {% if existing_review.rating >= i|add:0 %}
+                                        <i class="bi bi-star-fill"></i>
+                                    {% else %}
+                                        <i class="bi bi-star"></i>
+                                    {% endif %}
+                                {% endfor %}
+                            </span> ({{ existing_review.rating }})
+                        </p>
+                        {% if existing_review.comment %}<p class="small mt-1 mb-0 fst-italic">"{{ existing_review.comment|truncatewords:30 }}"</p>{% endif %}
+                    </div>
+                {% elif not request.user.is_authenticated %}
+                    <div class="glass-card p-3 p-md-4 my-4 alert alert-secondary text-center" data-aos="fade-up">
+                        <p class="mb-1" style="color: var(--text-muted-custom);">
+                            <a href="{% url 'users:login' %}?next={{ request.path }}" class="fw-bold text-accent">Login</a> or 
+                            <a href="{% url 'users:register' %}?next={{ request.path }}" class="fw-bold text-accent">Sign Up</a> to write a review.
+                        </p>
+                    </div>
+                {% endif %}
+                {% if course_reviews %}
+                    <div class="list-group mb-5" data-aos="fade-up" data-aos-delay="100">
+                        {% for review in course_reviews %}
+                            <div class="list-group-item review-card glass-card p-3 mb-3 shadow-sm">
+                                <div class="d-flex align-items-center mb-2">
+                                    {% if review.user.profile.avatar %}
+                                        <img src="{{ review.user.profile.avatar.url }}" alt="{{ review.user.get_full_name }}" class="rounded-circle me-3 user-avatar">
+                                    {% else %}
+                                        <span class="rounded-circle user-avatar bg-secondary d-flex justify-content-center align-items-center text-light fw-bold" style="font-size: 1.25rem;">
+                                            {{ review.user.get_short_name|default:review.user.email|slice:":1"|upper }}
+                                        </span>
+                                    {% endif %}
+                                    <div>
+                                        <strong>{{ review.user.get_short_name|default:review.user.email }}</strong><br>
+                                        <small class="text-muted">{{ review.created_at|date:"M d, Y" }}</small>
+                                    </div>
+                                </div>
+                                <div class="rating-stars mb-2">
+                                    {% for i in "12345"|make_list %}
+                                        {% if review.rating >= i|add:0 %}
+                                            <i class="bi bi-star-fill"></i>
+                                        {% else %}
+                                            <i class="bi bi-star"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                                {% if review.comment %}
+                                    <p style="color: var(--text-muted-custom); font-style: italic;">{{ review.comment }}</p>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted-custom" data-aos="fade-up" data-aos-delay="100"></p>
+                {% endif %}
+            </div>
+            <div class="col-lg-4">
+                <div class="sidebar sticky-top pt-4 pt-lg-0" style="top: 100px;">
+                <div class="course-summary-grid mb-4" data-aos="fade-up" data-aos-delay="100">
+    <h5 class="fw-semibold">Course Summary</h5>
+    <div class="row g-3">
+        <div class="col-6 col-md-4">
+            <div class="summary-card glass-card text-center">
+                <i class="bi bi-journal-text summary-icon"></i>
+                <h6>Modules</h6>
+                <span class="badge rounded-pill" style="color: var(--accent-color);">{{ course.modules.count }}</span>
+            </div>
+        </div>
+        <div class="col-6 col-md-4">
+            <div class="summary-card glass-card text-center">
+                <i class="bi bi-file-text summary-icon"></i>
+                <h6>Lessons</h6>
+                <span class="badge rounded-pill" style="color: var(--accent-color);">{{ total_lessons_in_course }}</span>
+            </div>
+        </div>
+        <div class="col-6 col-md-4">
+            <div class="summary-card glass-card text-center">
+                <i class="bi bi-clock summary-icon"></i>
+                <h6>Duration</h6>
+                <span class="badge rounded-pill" style="color: var(--accent-color);">Flexible</span>
+            </div>
+        </div>
+        <div class="col-6 col-md-4">
+            <div class="summary-card glass-card text-center">
+                <i class="bi bi-people summary-icon"></i>
+                <h6>Students</h6>
+                <span class="badge rounded-pill" style="color: var(--accent-color);">{{ total_students_enrolled|default:"0" }}</span>
+            </div>
+        </div>
+        <div class="col-6 col-md-4">
+            <div class="summary-card glass-card text-center">
+                <i class="bi bi-star-fill summary-icon"></i>
+                <h6>Reviews</h6>
+                <span class="badge rounded-pill" style="color: var(--accent-color);">{{ total_reviews_count }}</span>
+            </div>
+        </div>
+        {% if user.is_authenticated and is_enrolled %}
+        <div class="col-6 col-md-4">
+            <div class="summary-card glass-card text-center">
+                <i class="bi bi-check-circle-fill summary-icon"></i>
+                <h6>Progress</h6>
+                <span class="badge rounded-pill" style="color: var(--accent-color);">{{ course_progress_percent }}%</span>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>          <div class="mb-4">
+                        <h5 class="fw-semibold">Instructor</h5>
+                        <div class="d-flex align-items-center">
+                            {% if course.instructor.profile.avatar %}
+                                <img src="{{ course.instructor.profile.avatar.url }}" alt="{{ course.instructor.get_short_name }}" class="rounded-circle me-3" width="60" height="60" style="object-fit: cover;">
+                            {% else %}
+                                <span class="rounded-circle bg-secondary text-light d-flex justify-content-center align-items-center me-3" style="width: 60px; height: 60px; font-size: 1.5rem;">
+                                    {{ course.instructor.get_short_name|default:course.instructor.email|slice:":1"|upper }}
+                                </span>
+                            {% endif %}
+                            <div>
+                                <strong>{{ course.instructor.get_short_name|default:course.instructor.email }}</strong><br>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <h5 class="fw-semibold">Share This Course</h5>
+                        <div class="d-flex gap-2">
+                            <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}" target="_blank" class="btn btn-primary btn-sm" aria-label="Share on Facebook"><i class="bi bi-facebook"></i></a>
+                            <a href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri }}&text={{ course.title }}" target="_blank" class="btn btn-info btn-sm" aria-label="Share on Twitter"><i class="bi bi-twitter"></i></a>
+                            <a href="https://www.linkedin.com/shareArticle?mini=true&url={{ request.build_absolute_uri }}&title={{ course.title }}" target="_blank" class="btn btn-primary btn-sm" style="background-color: #0a66c2;" aria-label="Share on LinkedIn"><i class="bi bi-linkedin"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock content %}
+
+{% block extra_js %}
+<script>
+    AOS.init({
+        duration: 800,
+        once: true
+    });
+</script>
+{% endblock extra_js %}

@@ -1,0 +1,275 @@
+{% extends "base/base.html" %}
+{% load static %}
+{% load course_tags %} 
+
+{% block title %}{{ page_title|default:"Our Courses" }} - {{ block.super }}{% endblock title %}
+
+{% block extra_head %}
+<style>
+    /* Styles for pagination to match your theme */
+    .pagination .page-item .page-link {
+        background-color: var(--secondary-color);
+        border-color: var(--accent-color- subdued, rgba(var(--accent-color-rgb), 0.3)); /* Define --accent-color-rgb */
+        color: var(--accent-color);
+        margin: 0 2px;
+        border-radius: var(--radius-sm);
+        transition: var(--transition);
+    }
+    .pagination .page-item.active .page-link {
+        background-color: var(--accent-color);
+        border-color: var(--accent-color);
+        color: var(--primary-color); /* Text on accent */
+        box-shadow: 0 2px 8px 0 rgba(var(--accent-color-rgb),0.25);
+    }
+    .pagination .page-item.disabled .page-link {
+        background-color: rgba(var(--secondary-color-rgb), 0.5);
+        border-color: rgba(var(--accent-color-rgb), 0.2);
+        color: rgba(var(--accent-color-rgb), 0.4);
+    }
+    .pagination .page-item .page-link:hover {
+        background-color: var(--accent-color);
+        color: var(--primary-color);
+        opacity: 0.85;
+    }
+
+    [data-theme="light"] .pagination .page-item .page-link {
+        background-color: var(--light-bg-alt);
+        border-color: var(--secondary-color); /* Light theme secondary */
+        color: var(--accent-color);
+    }
+    [data-theme="light"] .pagination .page-item.active .page-link {
+        background-color: var(--accent-color);
+        border-color: var(--accent-color);
+        color: var(--text-dark); /* Text on accent for light mode */
+    }
+    [data-theme="light"] .pagination .page-item.disabled .page-link {
+        background-color: var(--secondary-color);
+        color: rgba(var(--text-dark-rgb), 0.4);
+    }
+    [data-theme="light"] .pagination .page-item .page-link:hover {
+        background-color: var(--accent-color);
+        color: var(--text-dark);
+        opacity: 0.85;
+    }
+
+    /* Search form styling */
+    .search-form .form-control {
+        background-color: var(--secondary-color);
+        color: var(--text-light);
+        border: 1px solid var(--accent-color-subdued, rgba(var(--accent-color-rgb), 0.3));
+        border-radius: var(--radius-sm);
+        padding: 0.75rem 1rem;
+    }
+    .search-form .form-control::placeholder {
+        color: var(--text-muted-custom);
+        opacity: 0.7;
+    }
+    .search-form .form-control:focus {
+        background-color: var(--secondary-color);
+        color: var(--text-light);
+        border-color: var(--accent-color);
+        box-shadow: 0 0 0 0.25rem rgba(var(--accent-color-rgb),0.25);
+    }
+    [data-theme="light"] .search-form .form-control {
+        background-color: #fff;
+        color: var(--text-dark);
+        border-color: var(--secondary-color); /* Light theme secondary */
+    }
+    [data-theme="light"] .search-form .form-control:focus {
+        background-color: #fff;
+        color: var(--text-dark);
+    }
+</style>
+{% endblock extra_head %}
+
+{% block content %}
+<section class="courses-section py-5">
+    <div class="container px-4 py-5">
+        <div class="text-center mb-5 pt-3" data-aos="fade-up">
+            {% if current_category %}
+                <h1 class="section-title display-5">
+                    <i class="bi bi-folder2-open me-2"></i>Courses in <span class="highlight-accent">{{ current_category.name }}</span>
+                </h1>
+                {% if search_query %}
+                    <p class="lead text-muted-custom">Search results for "{{ search_query }}"</p>
+                {% elif current_category.description %}
+                    <p class="lead text-muted-custom mx-auto" style="max-width:700px;">{{ current_category.description }}</p>
+                {% endif %}
+                <p class="mt-3"><a href="{% url 'courses:course_list' %}" class="btn btn-sm btn-outline-accent">View All Courses & Categories</a></p>
+            {% else %}
+                <h1 class="section-title display-5">
+                    Our <span class="highlight-accent">Courses</span>
+                </h1>
+                {% if search_query %}
+                    <p class="lead text-muted-custom">Showing results for: "{{ search_query }}"</p>
+                {% else %}
+                    <p class="lead text-muted-custom mx-auto" style="max-width:700px;">
+                        Explore our diverse catalog of AI-powered courses designed to elevate your skills.
+                    </p>
+                {% endif %}
+            {% endif %}
+        </div>
+
+        <!-- Search Form & Category Filters -->
+        <div class="row mb-5 align-items-center" data-aos="fade-up" data-aos-delay="100">
+            <div class="col-lg-8 mb-3 mb-lg-0">
+                <form method="get" action="{% if current_category %}{% url 'courses:course_list_by_category' category_slug=current_category.slug %}{% else %}{% url 'courses:course_list' %}{% endif %}" class="search-form">
+                    <div class="input-group input-group-lg glass-card p-1" style="border-radius: var(--radius-md);">
+                        <input type="text" name="q" class="form-control border-0 shadow-none" placeholder="Search courses by title, description, category, or instructor..." value="{{ search_query|default:'' }}" aria-label="Search courses">
+                        <button class="btn btn-accent px-4" type="submit" id="button-search">
+                            <i class="bi bi-search"></i> <span class="d-none d-sm-inline">Search</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+            {% if categories and not current_category %}
+            <div class="col-lg-4 text-lg-end">
+                <div class="dropdown">
+                    <button class="btn btn-outline-accent dropdown-toggle btn-lg" type="button" id="categoryFilterDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-tags-fill me-1"></i> Filter by Category
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end glass-card border-0 shadow-lg" aria-labelledby="categoryFilterDropdown">
+                        <li><a class="dropdown-item nav-link" href="{% url 'courses:course_list' %}">All Categories</a></li>
+                        {% for cat in categories %}
+                        <li><a class="dropdown-item nav-link" href="{{ cat.get_absolute_url }}">{{ cat.name }}</a></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+{% if courses %}
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        {% for course in courses %} {# courses is now courses_page.object_list #}
+        <div class="col d-flex align-items-stretch" data-aos="fade-up" data-aos-delay="{{ forloop.counter0|multiply:50|add:150 }}">
+            <div class="glass-card h-100 shadow-lg d-flex flex-column">
+                <a href="{% url 'courses:course_detail' course_slug=course.slug %}" class="text-decoration-none position-relative">
+                    {% if course.thumbnail %}
+                        <img src="{{ course.thumbnail.url }}" class="course-card-thumbnail" alt="{{ course.title }} thumbnail">
+                    {% else %}
+                        {# Consider a more theme-aligned placeholder for courses #}
+                        <div class="course-card-thumbnail d-flex align-items-center justify-content-center" style="background-color: var(--secondary-color);">
+                            <i class="bi bi-book-half fs-1" style="color: var(--accent-color);"></i>
+                        </div>
+                    {% endif %}
+                    {% if course.avg_rating is not None %}
+                        <span class="badge rounded-pill position-absolute top-0 start-0 m-2" 
+                              style="background-color: rgba(var(--primary-color-rgb), 0.8); color: var(--accent-color); backdrop-filter: blur(4px); padding: 0.35em 0.65em; font-size: 0.8rem;">
+                            <i class="bi bi-star-fill me-1"></i> {{ course.avg_rating|floatformat:1 }} 
+                            <span class="fw-normal opacity-75">({{ course.num_reviews }})</span>
+                        </span>
+                    {% endif %}
+                </a>
+                <div class="p-3 p-md-4 d-flex flex-column flex-grow-1">
+                    {% if course.category and not current_category %}
+                    <div class="mb-2">
+                        <a href="{{ course.category.get_absolute_url }}" class="badge rounded-pill me-1" style="background-color: var(--progress-color); color: var(--text-light); text-decoration: none; font-size: 0.75rem;">
+                            <i class="bi bi-tag-fill"></i> {{ course.category.name }}
+                        </a>
+                    </div>
+                    {% endif %}
+                    <h5 class="fw-bold fs-5 mb-2">
+                        <a href="{% url 'courses:course_detail' course_slug=course.slug %}" class="stretched-link text-decoration-none text-accent">{{ course.title }}</a>
+                    </h5>
+                    <p class="small flex-grow-1" style="color:var(--text-muted-custom);">
+                        {{ course.description|truncatewords:18 }}
+                    </p>
+                    <div class="d-flex align-items-center justify-content-between mt-3">
+                        <span class="badge rounded-pill px-3 py-2 small" style="background:var(--secondary-color); color:var(--accent-color); font-weight:500;">
+                            <i class="bi bi-person-fill"></i> {{ course.instructor.get_short_name|default:course.instructor.email }}
+                        </span>
+                        <a href="{% url 'courses:course_detail' course_slug=course.slug %}" class="btn btn-sm btn-outline-accent">Details</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+            <!-- Pagination Controls -->
+            <nav aria-label="Course navigation" class="mt-5 pt-4" data-aos="fade-up">
+                <ul class="pagination justify-content-center">
+                    {% if courses.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page=1{% if search_query %}&q={{ search_query }}{% endif %}{% if current_category %}&category={{ current_category.slug }}{% endif %}" aria-label="First">
+                                <i class="bi bi-chevron-double-left"></i>
+                            </a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ courses.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if current_category %}&category={{ current_category.slug }}{% endif %}" aria-label="Previous">
+                                <i class="bi bi-chevron-left"></i>
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled"><span class="page-link"><i class="bi bi-chevron-double-left"></i></span></li>
+                        <li class="page-item disabled"><span class="page-link"><i class="bi bi-chevron-left"></i></span></li>
+                    {% endif %}
+
+                    {% for num in courses.paginator.page_range %}
+                        {% if courses.number == num %}
+                            <li class="page-item active" aria-current="page"><span class="page-link">{{ num }}</span></li>
+                        {% elif num > courses.number|add:'-3' and num < courses.number|add:'3' %}
+                            <li class="page-item"><a class="page-link" href="?page={{ num }}{% if search_query %}&q={{ search_query }}{% endif %}{% if current_category %}&category={{ current_category.slug }}{% endif %}">{{ num }}</a></li>
+                        {% elif num == courses.number|add:'-3' or num == courses.number|add:'3' %}
+                             <li class="page-item disabled"><span class="page-link">...</span></li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if courses.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ courses.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if current_category %}&category={{ current_category.slug }}{% endif %}" aria-label="Next">
+                                <i class="bi bi-chevron-right"></i>
+                            </a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ courses.paginator.num_pages }}{% if search_query %}&q={{ search_query }}{% endif %}{% if current_category %}&category={{ current_category.slug }}{% endif %}" aria-label="Last">
+                                <i class="bi bi-chevron-double-right"></i>
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled"><span class="page-link"><i class="bi bi-chevron-right"></i></span></li>
+                        <li class="page-item disabled"><span class="page-link"><i class="bi bi-chevron-double-right"></i></span></li>
+                    {% endif %}
+                </ul>
+            </nav>
+            <!-- End Pagination Controls -->
+
+        {% else %}
+            <div class="glass-card p-5 text-center" data-aos="fade-up">
+                <i class="bi bi-search fs-1 text-accent mb-3"></i>
+                <h4 class="fw-bold" style="color:var(--text-light);">No Courses Found</h4>
+                {% if search_query %}
+                <p class="lead" style="color:var(--text-muted-custom);">
+                    We couldn't find any courses matching your search for "{{ search_query }}". Try a different term?
+                </p>
+                {% elif current_category %}
+                <p class="lead" style="color:var(--text-muted-custom);">
+                    There are currently no courses in the category "{{ current_category.name }}".
+                </p>
+                {% else %}
+                <p class="lead" style="color:var(--text-muted-custom);">
+                    No courses available at the moment. Please check back later!
+                </p>
+                {% endif %}
+                <a href="{% url 'courses:course_list' %}" class="btn btn-accent btn-lg mt-3">
+                    <i class="bi bi-arrow-clockwise"></i> Clear Search / View All
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock content %}
+
+{% block extra_js %}
+{# AOS JS should ideally be initialized once in base.html #}
+<script>
+    if (typeof AOS !== 'undefined' && typeof AOS.init === 'function') {
+        AOS.init({
+            duration: 600,
+            easing: 'ease-out-quad',
+            once: true, 
+            offset: 50 
+        });
+    }
+</script>
+{% endblock extra_js %}

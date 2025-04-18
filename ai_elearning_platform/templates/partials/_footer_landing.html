@@ -1,0 +1,31 @@
+<!-- templates/partials/_footer_landing.html -->
+<footer class="footer-landing text-center">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-4 mb-4 mb-lg-0">
+                <h5 class="text-uppercase mb-3">AI E-Learning</h5>
+                <p>Revolutionizing education through personalized, AI-driven learning experiences.</p>
+            </div>
+            <div class="col-lg-4 mb-4 mb-lg-0">
+                <h5 class="text-uppercase mb-3">Quick Links</h5>
+                <ul class="list-unstyled">
+                    <li><a href="{% url 'courses:course_list' %}">Browse Courses</a></li>
+                    <li><a href="#">About Us (Placeholder)</a></li>
+                    <li><a href="#">Contact (Placeholder)</a></li>
+                    <li><a href="#">Privacy Policy (Placeholder)</a></li>
+                </ul>
+            </div>
+            <div class="col-lg-4">
+                <h5 class="text-uppercase mb-3">Connect With Us</h5>
+                <div class="social-icons">
+                    <a href="#" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
+                    <a href="#" aria-label="Twitter"><i class="bi bi-twitter-x"></i></a>
+                    <a href="#" aria-label="LinkedIn"><i class="bi bi-linkedin"></i></a>
+                    <a href="#" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
+                </div>
+            </div>
+        </div>
+        <hr class="my-4" style="border-color: rgba(255,255,255,0.1);">
+        <p class="mb-0">© {% now "Y" %} AI E-Learning Platform. All rights reserved.</p>
+    </div>
+</footer>

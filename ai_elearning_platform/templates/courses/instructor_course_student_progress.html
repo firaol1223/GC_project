@@ -1,0 +1,102 @@
+{% extends "base/base.html" %}
+{% load static %}
+
+{% block title %}{{ page_title }} - {{ block.super }}{% endblock title %}
+
+{% block extra_head %}
+{{ block.super }}
+<style>
+    /* Re-use table styles from admin/instructor dashboards or define here */
+    .student-progress-table th { color: var(--accent-color); font-weight: 600; }
+    .student-progress-table td a { color: var(--accent-color); text-decoration: none; font-weight: 500; }
+    .student-progress-table td a:hover { text-decoration: underline; color: var(--progress-color); }
+</style>
+{% endblock extra_head %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <nav aria-label="breadcrumb" class="mb-3" data-aos="fade-down">
+        <ol class="breadcrumb glass-card p-2 px-3 mb-0" style="border-radius: var(--radius-sm);">
+            <li class="breadcrumb-item"><a href="{% url 'courses:instructor_dashboard' %}" class="text-accent">Instructor Dashboard</a></li>
+            <li class="breadcrumb-item active" aria-current="page" style="color:var(--text-light);">{{ course.title }} - Student Progress</li>
+        </ol>
+    </nav>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="display-6 fw-bold">{{ page_title }}</h1>
+        <a href="{% url 'admin:courses_course_change' course.id %}" target="_blank" class="btn btn-sm btn-outline-accent">
+            <i class="bi bi-pencil-square me-1"></i> Edit Course Settings
+        </a>
+    </div>
+
+    <div class="glass-card p-0 shadow-sm" data-aos="fade-up">
+        {% if student_progress_data %}
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0 student-progress-table" style="color: var(--text-light); --bs-table-hover-color: var(--text-dark); --bs-table-hover-bg: rgba(var(--accent-color-rgb), 0.15);">
+                <thead style="border-bottom: 2px solid var(--accent-color);">
+                    <tr>
+                        <th>Student</th>
+                        <th class="text-center">Email</th>
+                        <th class="text-center">Lessons Completed</th>
+                        <th class="text-center">Progress</th>
+                        <th class="text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in student_progress_data %}
+                    <tr>
+                        <td>
+                            <img src="{{ item.student_profile.profile_picture.url }}" alt="{{ item.student_user.get_short_name|default:item.student_user.email }}" 
+                                 class="rounded-circle me-2" width="32" height="32" style="object-fit: cover;">
+                            {{ item.student_user.get_full_name|default:item.student_user.email }}
+                        </td>
+                        <td class="text-center">{{ item.student_user.email }}</td>
+                        <td class="text-center">
+                            {{ item.completed_lessons }} / {{ item.total_lessons }}
+                        </td>
+                        <td class="text-center">
+                            <div class="progress mx-auto" style="height: 1.1rem; background-color: var(--secondary-color); width: 120px;">
+                                <div class="progress-bar small fw-bold" role="progressbar" 
+                                     style="width: {{ item.progress_percent }}%; font-size: 0.75rem;" 
+                                     aria-valuenow="{{ item.progress_percent }}" aria-valuemin="0" aria-valuemax="100">
+                                    {{ item.progress_percent }}%
+                                </div>
+                            </div>
+                        </td>
+                        <td class="text-center">
+                            {# Link to a more detailed view of this student's activity in THIS course (Future) #}
+                            <a href="#" class="btn btn-sm btn-outline-light p-1" style="border-color: var(--accent-color); color:var(--accent-color);" title="View Detailed Activity">
+                                <i class="bi bi-search"></i>
+                            </a>
+                             {# Link to manage user in Django Admin #}
+                            <a href="{% url 'admin:users_customuser_change' item.student_user.id %}" target="_blank" class="btn btn-sm btn-outline-light p-1 ms-1" style="border-color: var(--accent-color); color:var(--accent-color);" title="View User in Admin">
+                                <i class="bi bi-person-gear"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="p-4 text-center">
+            <i class="bi bi-people fs-1 mb-2 text-muted-custom"></i>
+            <p style="color: var(--text-muted-custom);">No students have made progress in this course yet.</p>
+        </div>
+        {% endif %}
+    </div>
+    
+    {# Optional: Pagination if many students #}
+
+</div>
+{% endblock content %}
+
+{% block extra_js %}
+{{ block.super }}
+<script>
+    // AOS Init (if not global in base.html for every page)
+    if (typeof AOS !== 'undefined' && typeof AOS.init === 'function') {
+        AOS.init({ duration: 600, once: true, offset: 50 });
+    }
+</script>
+{% endblock extra_js %}

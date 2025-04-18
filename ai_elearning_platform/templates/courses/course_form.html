@@ -1,0 +1,160 @@
+{% extends "base/base.html" %}
+{% load static %}
+{% load widget_tweaks %} {# If you prefer widget_tweaks for form styling #}
+
+{% block title %}{{ page_title }} - {{ block.super }}{% endblock title %}
+
+{% block extra_head %}
+{{ block.super }}
+<style>
+    /* Styles for course form card and inputs, similar to profile/auth forms */
+    .course-form-card {
+        background: rgba(var(--primary-color-rgb), 0.20);
+        box-shadow: var(--shadow-neumorph);
+        border-radius: var(--radius-lg);
+        backdrop-filter: blur(14px) brightness(1.10);
+        border: 1px solid rgba(var(--accent-color-rgb), 0.08);
+        max-width: 700px; /* Wider for course forms */
+        margin: 2rem auto;
+        padding: 2rem 2.5rem;
+    }
+    [data-theme="light"] .course-form-card {
+        background: rgba(var(--light-bg-rgb, 248,249,250), 0.85);
+        box-shadow: var(--shadow-neumorph); /* Ensure light theme neumorph is distinct */
+        border: 1px solid rgba(var(--secondary-color-rgb), 0.3);
+    }
+
+    .course-form-card .form-label {
+        color: var(--text-light); /* Text color for dark theme */
+        font-weight: 500;
+        margin-bottom: 0.3rem;
+    }
+    [data-theme="light"] .course-form-card .form-label {
+        color: var(--text-dark); /* Text color for light theme */
+    }
+
+    
+    
+    .course-form-card .form-text {
+        color: var(--text-muted-custom);
+        font-size: 0.85em;
+    }
+    .course-form-card .invalid-feedback {
+        color: #ff6b6b !important; /* Brighter red for errors */
+    }
+    [data-theme="light"] .course-form-card .invalid-feedback {
+         color: #dc3545 !important;
+    }
+    .thumbnail-preview-container {
+        margin-top: 0.5rem;
+        margin-bottom: 1rem;
+    }
+    .thumbnail-preview {
+        max-width: 200px;
+        max-height: 150px;
+        border-radius: var(--radius-sm);
+        border: 2px solid var(--secondary-color);
+        object-fit: cover;
+    }
+    [data-theme="light"] .thumbnail-preview {
+        border-color: var(--light-bg-alt);
+    }
+</style>
+{% endblock extra_head %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="course-form-card" data-aos="fade-up">
+        <div class="text-center mb-4">
+            <i class="bi bi-journal-plus display-4" style="color: var(--accent-color);"></i>
+            <h2 class="fw-bold mt-2" style="color: var(--accent-color);">{{ page_title }}</h2>
+            {% if course %}
+            <p style="color: var(--text-muted-custom);">Update the details for your course: <strong>{{ course.title }}</strong></p>
+            {% else %}
+            <p style="color: var(--text-muted-custom);">Fill in the details below to create a new course.</p>
+            {% endif %}
+        </div>
+
+        <form method="post" enctype="multipart/form-data" novalidate>
+            {% csrf_token %}
+
+            {# Display non-field errors if any #}
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger glass-card p-2 border-0 mb-3" role="alert">
+                    {% for error in form.non_field_errors %}
+                        <p class="mb-0 small">{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            {# Render form fields - example using widget_tweaks for precise classing #}
+            {# If not using widget_tweaks, ensure your CourseForm widget attrs are sufficient #}
+            
+            <div class="mb-3">
+                <label for="{{ form.title.id_for_label }}" class="form-label">{{ form.title.label }}</label>
+                {% render_field form.title class+="form-control glass-card-input" %}
+                {% if form.title.help_text %}<small class="form-text d-block mt-1">{{ form.title.help_text|safe }}</small>{% endif %}
+                {% for error in form.title.errors %}<div class="invalid-feedback d-block mt-1">{{ error }}</div>{% endfor %}
+            </div>
+
+            <div class="mb-3">
+                <label for="{{ form.category.id_for_label }}" class="form-label">{{ form.category.label }}</label>
+                {% render_field form.category class+="form-select glass-card-input" %}
+                {% if form.category.help_text %}<small class="form-text d-block mt-1">{{ form.category.help_text|safe }}</small>{% endif %}
+                {% for error in form.category.errors %}<div class="invalid-feedback d-block mt-1">{{ error }}</div>{% endfor %}
+            </div>
+
+            <div class="mb-3">
+                <label for="{{ form.description.id_for_label }}" class="form-label">{{ form.description.label }}</label>
+                {% render_field form.description class+="form-control glass-card-input" %}
+                {% if form.description.help_text %}<small class="form-text d-block mt-1">{{ form.description.help_text|safe }}</small>{% endif %}
+                {% for error in form.description.errors %}<div class="invalid-feedback d-block mt-1">{{ error }}</div>{% endfor %}
+            </div>
+
+            <div class="mb-3">
+                <label for="{{ form.thumbnail.id_for_label }}" class="form-label">{{ form.thumbnail.label }}</label>
+                {% render_field form.thumbnail class+="form-control glass-card-input" %}
+                {% if form.thumbnail.help_text %}<small class="form-text d-block mt-1">{{ form.thumbnail.help_text|safe }}</small>{% endif %}
+                {% for error in form.thumbnail.errors %}<div class="invalid-feedback d-block mt-1">{{ error }}</div>{% endfor %}
+                {% if course and course.thumbnail %}
+                    <div class="thumbnail-preview-container">
+                        <p class="small mb-1" style="color: var(--text-muted-custom);">Current thumbnail:</p>
+                        <img src="{{ course.thumbnail.url }}" alt="Current thumbnail for {{ course.title }}" class="thumbnail-preview">
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top" style="border-color: rgba(var(--accent-color-rgb),0.1) !important;">
+                <a href="{% if course %}{% url 'courses:course_detail' course_slug=course.slug %}{% else %}{% url 'courses:instructor_dashboard' %}{% endif %}" class="btn btn-outline-secondary">Cancel</a>
+                <button type="submit" class="btn btn-accent px-4">
+                    {% if course %}Update Course{% else %}Create Course{% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock content %}
+
+{% block extra_js %}
+{{ block.super }}
+{# AOS Init if needed, or other JS specific to this form #}
+<script>
+    if (typeof AOS !== 'undefined' && typeof AOS.init === 'function') {
+        AOS.init({ duration: 600, once: true, offset: 50 });
+    }
+    // Simple preview for thumbnail (optional)
+    const thumbnailInput = document.querySelector('input[type="file"][name="thumbnail"]');
+    if (thumbnailInput) {
+        thumbnailInput.addEventListener('change', function(event) {
+            const existingPreview = document.querySelector('.thumbnail-preview');
+            if (existingPreview && event.target.files && event.target.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    existingPreview.src = e.target.result;
+                }
+                reader.readAsDataURL(event.target.files[0]);
+            }
+        });
+    }
+</script>
+{% endblock extra_js %}

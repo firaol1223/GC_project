@@ -1,0 +1,182 @@
+{% extends "base/base.html" %}
+{% load static %}
+{% load course_tags %}
+
+{% block title %}
+    {{ lesson.title }} - {{ course.title }} - {{ block.super }}
+{% endblock title %}
+
+{% block content %}
+<section class="lesson-detail-section py-5">
+    <div class="container px-4 py-5">
+        <!-- Breadcrumb Navigation -->
+        <nav aria-label="breadcrumb" data-aos="fade-up">
+            <ol class="breadcrumb glass-card p-3">
+                <li class="breadcrumb-item">
+                    <a href="{% url 'courses:course_list' %}" class="text-accent">Courses</a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="{% url 'courses:course_detail' course_slug=course.slug %}" class="text-accent">{{ course.title }}</a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="{% url 'courses:course_detail' course_slug=course.slug %}#collapse{{ current_module.id }}" class="text-accent">
+                        Module {{ current_module.order }}: {{ current_module.title }}
+                    </a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page" style="color: var(--text-light);">
+                    {{ lesson.title }}
+                </li>
+            </ol>
+        </nav>
+
+        <!-- Lesson Title -->
+        <h1 class="section-title mb-4" data-aos="fade-up" data-aos-delay="100">{{ lesson.title }}</h1>
+        <hr class="border-glass" data-aos="fade-up" data-aos-delay="150">
+
+        <!-- Lesson Contents -->
+        {% if contents %}
+            {% for content_item in contents %}
+                <div class="content-block glass-card mb-4 p-4" data-aos="fade-up" data-aos-delay="{{ forloop.counter0|multiply:100|add:200 }}">
+                    <h4 class="text-accent mb-3">{{ content_item.get_content_type_display }}</h4>
+
+                    {% if content_item.content_type == 'text' %}
+                        <div class="content-text" style="color: var(--text-light);">{{ content_item.text_content|safe|linebreaksbr }}</div>
+
+                    {% elif content_item.content_type == 'video' and content_item.video_embed_url %}
+                        <div class="ratio ratio-16x9 mb-2">
+                            <iframe src="{{ content_item.video_embed_url }}" title="Lesson Video"
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                    allowfullscreen class="rounded glass-iframe"></iframe>
+                        </div>
+                        <small>
+                            <a href="{{ content_item.video_embed_url }}" target="_blank" rel="noopener noreferrer" class="text-accent">
+                                Watch on source platform
+                            </a>
+                        </small>
+
+                    {% elif content_item.content_type == 'file' and content_item.file_upload %}
+                        <p>
+                            <a href="{{ content_item.file_upload.url }}" class="btn btn-secondary-custom" download>
+                                Download {{ content_item.file_upload.name|filename }}
+                            </a>
+                        </p>
+
+                    {% elif content_item.content_type == 'quiz' %}
+                        <p class="small" style="color: var(--text-muted-custom);">This lesson includes a quiz:</p>
+                        <h4>
+                            <a href="{% url 'courses:quiz_detail' quiz_id=content_item.quiz_link.id %}" class="btn btn-primary-custom btn-lg text-dark">
+                                Start Quiz: {{ content_item.quiz_link.title }}
+                            </a>
+                        </h4>
+
+                    {% else %}
+                        <p class="small" style="color: var(--text-muted-custom);"><em>Content not available or type not recognized.</em></p>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        {% else %}
+            <p class="text-center" style="color: var(--text-muted-custom);" data-aos="fade-up" data-aos-delay="200">
+                No content available for this lesson yet.
+            </p>
+        {% endif %}
+
+        <hr class="border-glass" data-aos="fade-up" data-aos-delay="250">
+
+        <!-- Lesson Completion / Quiz Interaction Section -->
+        {% if user.is_authenticated %}
+            <div class="lesson-actions my-4 p-3 glass-card shadow-sm" data-aos="fade-up" data-aos-delay="300">
+                {% if is_already_marked_complete %}
+                    <p class="text-success mb-0 d-flex align-items-center">
+                        <i class="bi bi-check-circle-fill fs-4 me-2"></i> 
+                        <span>You have completed this lesson. Well done!</span>
+                    </p>
+                {% elif can_manually_mark_complete %}
+                    <form method="POST" action="{% url 'courses:mark_lesson_completed' lesson_slug=lesson.slug %}" class="mb-0">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-success btn-lg w-100">
+                            <i class="bi bi-check2-square me-1"></i> Mark This Lesson as Completed
+                        </button>
+                    </form>
+                {% elif lesson_quiz %}
+                    {% if user_quiz_attempt_info.has_attempted %}
+                        {% if user_quiz_attempt_info.passed_latest %}
+                            <p class="text-success mb-0"><i class="bi bi-award-fill"></i> Quiz passed! Lesson complete.</p>
+                        {% else %}
+                            <div class="alert alert-warning border-0 mb-0">
+                                <h5 class="alert-heading fw-bold"><i class="bi bi-exclamation-triangle-fill"></i> Quiz Attempted</h5>
+                                <p>You previously attempted the quiz for this lesson but didn't achieve a passing score.</p>
+                                {% if user_quiz_attempt_info.can_retake %}
+                                    <a href="{% url 'courses:quiz_detail' quiz_id=lesson_quiz.id %}" class="btn btn-accent me-2">
+                                        <i class="bi bi-arrow-clockwise"></i> Retake Quiz {{ user_quiz_attempt_info.attempts_left_message }}
+                                    </a>
+                                {% else %}
+                                    <button class="btn btn-secondary" disabled>Max Attempts Reached</button>
+                                {% endif %}
+                                {% if user_quiz_attempt_info.latest_attempt_id %}
+                                    <a href="{% url 'courses:quiz_result' attempt_id=user_quiz_attempt_info.latest_attempt_id %}" class="btn btn-outline-accent">
+                                        View Last Attempt
+                                    </a>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        <div class="alert alert-info border-0 mb-0">
+                            <h5 class="alert-heading fw-bold"><i class="bi bi-card-checklist"></i> Quiz Required</h5>
+                            <p>This lesson has an associated quiz. You need to pass it to mark this lesson as complete and unlock the next lesson.</p>
+                            <a href="{% url 'courses:quiz_detail' quiz_id=lesson_quiz.id %}" class="btn btn-lg btn-accent">
+                                <i class="bi bi-play-circle-fill"></i> Go to Quiz
+                            </a>
+                        </div>
+                    {% endif %}
+                {% else %}
+                    <p class="text-muted-custom">Lesson completion status unavailable.</p>
+                {% endif %}
+            </div>
+        {% endif %}
+
+        <!-- Navigation Buttons -->
+        <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top border-glass" data-aos="fade-up" data-aos-delay="350">
+            <div>
+                {% if previous_lesson %}
+                    <a href="{% url 'courses:lesson_detail' course_slug=course.slug lesson_slug=previous_lesson.slug %}"
+                       class="btn btn-secondary-custom btn-sm" title="{{ previous_lesson.title }}">
+                        <i class="bi bi-arrow-left-circle me-1"></i> Previous Lesson
+                    </a>
+                {% endif %}
+            </div>
+
+            <a href="{% url 'courses:course_detail' course_slug=course.slug %}#collapse{{ current_module.id }}"
+               class="btn btn-secondary-custom btn-sm">
+                <i class="bi bi-list-ul me-1"></i> Module Overview
+            </a>
+
+            <div>
+                {% if next_lesson %}
+                    <a href="{% url 'courses:lesson_detail' course_slug=course.slug lesson_slug=next_lesson.slug %}"
+                       class="btn btn-primary-custom btn-sm" title="{{ next_lesson.title }}">
+                        Next Lesson <i class="bi bi-arrow-right-circle ms-1"></i>
+                    </a>
+                {% else %}
+                    <a href="{% url 'courses:course_detail' course_slug=course.slug %}" class="btn btn-primary-custom btn-sm">
+                        Finish Module <i class="bi bi-check-circle-fill ms-1"></i>
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock content %}
+
+{% block extra_js %}
+<!-- AOS JS (if not already in base.html) -->
+<script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script>
+    AOS.init({
+        duration: 700,
+        easing: 'ease-in-out-quad',
+        once: true,
+        mirror: false,
+        offset: 100
+    });
+</script>
+{% endblock extra_js %}

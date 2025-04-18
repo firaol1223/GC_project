@@ -1,0 +1,225 @@
+{% extends "base/base.html" %}
+{% load static %}
+{% load course_tags %}
+
+{% block title %}Welcome to AI Learning - Your Future of Education{% endblock %}
+
+{% block content %}
+
+<section class="hero-section position-relative">
+    <div id="particles-bg"></div>
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-7 text-lg-start">
+                <h1 data-aos="fade-right">Transform Your Learning with <span class="text-accent">AI Power</span></h1>
+                <p class="lead" data-aos="fade-right" data-aos-delay="100">
+                    Experience personalized education tailored to your pace and style. Our intelligent platform adapts to you, making learning more effective and engaging than ever before.
+                </p>
+                <div data-aos="fade-up" data-aos-delay="200">
+                    <a href="{% url 'courses:course_list' %}" class="btn btn-primary-custom btn-lg me-lg-3 mb-3 mb-lg-0">Explore Courses</a>
+                    {% if not user.is_authenticated %}
+                    <a href="{% url 'users:register' %}" class="btn btn-secondary-custom btn-lg">Get Started Free</a>
+                    {% endif %}
+                </div>
+            </div>
+            
+        </div>
+    </div>
+</section>
+<!-- Features Section -->
+<section class="features-section py-5">
+    <div class="container px-4 py-5">
+        <h2 class="section-title text-center display-5">
+    Why Choose Our <span class="highlight-accent">AI Platform?</span>
+</h2>
+        <div class="row g-4 py-5 row-cols-1 row-cols-lg-3">
+            <div class="col d-flex align-items-stretch" data-aos="fade-up">
+                <div class="glass-card feature-item w-100">
+                    <div class="feature-icon mb-3"><i class="bi bi-person-video3"></i></div>
+                    <h5 class="fw-semibold">Personalized Learning Paths</h5>
+                    <p>AI analyzes your progress and preferences to suggest courses and content tailored just for you.</p>
+                </div>
+            </div>
+            <div class="col d-flex align-items-stretch" data-aos="fade-up" data-aos-delay="100">
+                <div class="glass-card feature-item w-100">
+                    <div class="feature-icon mb-3"><i class="bi bi-cpu-fill"></i></div>
+                    <h5 class="fw-semibold">Intelligent Assessments</h5>
+                    <p>Get instant feedback on quizzes and AI-assisted insights on your short answers to accelerate understanding.</p>
+                </div>
+            </div>
+            <div class="col d-flex align-items-stretch" data-aos="fade-up" data-aos-delay="200">
+                <div class="glass-card feature-item w-100">
+                    <div class="feature-icon mb-3"><i class="bi bi-chat-dots-fill"></i></div>
+                    <h5 class="fw-semibold">24/7 AI Chatbot Support</h5>
+                    <p>Never get stuck. Our AI chatbot is always available to answer your questions and guide your learning.</p>
+                </div>
+            </div>
+            <div class="col d-flex align-items-stretch" data-aos="fade-up" data-aos-delay="300">
+                <div class="glass-card feature-item w-100">
+                    <div class="feature-icon mb-3"><i class="bi bi-people-fill"></i></div>
+                    <h5 class="fw-semibold">Interactive Community</h5>
+                    <p>Engage with peers in discussion forums, share knowledge, and learn collaboratively.</p>
+                </div>
+            </div>
+            <div class="col d-flex align-items-stretch" data-aos="fade-up" data-aos-delay="400">
+                <div class="glass-card feature-item w-100">
+                    <div class="feature-icon mb-3"><i class="bi bi-joystick"></i></div>
+                    <h5 class="fw-semibold">Gamified Experience</h5>
+                    <p>Earn points, badges, and climb the leaderboard to stay motivated and celebrate your achievements.</p>
+                </div>
+            </div>
+            <div class="col d-flex align-items-stretch" data-aos="fade-up" data-aos-delay="500">
+                <div class="glass-card feature-item w-100">
+                    <div class="feature-icon mb-3"><i class="bi bi-graph-up-arrow"></i></div>
+                    <h5 class="fw-semibold">Track Your Progress</h5>
+                    <p>Monitor your learning journey with detailed analytics and insights on your personal dashboard.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- How It Works Section -->
+<section class="how-it-works-section py-5">
+    <div class="container px-4 py-5">
+        <h2 class="section-title text-center display-5">
+    Unlock Your Potential in <span class="highlight-accent">3 Simple Steps</span>
+</h2>
+        <div class="row g-4 py-5 row-cols-1 row-cols-md-3">
+            <div class="col d-flex align-items-stretch" data-aos="zoom-in">
+                <div class="glass-card how-it-works-item w-100" tabindex="0">
+                    <span class="step-number">01</span>
+                    <h5 class="fw-semibold">Sign Up & Explore</h5>
+                    <p>Create your free account and discover a vast catalog of courses designed for all levels.</p>
+                </div>
+            </div>
+            <div class="col d-flex align-items-stretch" data-aos="zoom-in" data-aos-delay="150">
+                <div class="glass-card how-it-works-item w-100" tabindex="0">
+                    <span class="step-number">02</span>
+                    <h5 class="fw-semibold">Learn & Interact</h5>
+                    <p>Engage with AI-powered lessons, get instant feedback, and connect with our learning community.</p>
+                </div>
+            </div>
+            <div class="col d-flex align-items-stretch" data-aos="zoom-in" data-aos-delay="300">
+                <div class="glass-card how-it-works-item w-100" tabindex="0">
+                    <span class="step-number">03</span>
+                    <h5 class="fw-semibold">Achieve & Grow</h5>
+                    <p>Track your progress, earn rewards, and continuously develop new skills with our adaptive system.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Popular Courses Section -->
+{% if courses %}
+<section class="popular-courses-section py-5">
+    <div class="container px-4 py-5">
+        <h2 class="section-title text-center display-5">Popular Courses to Get You Started</h2>
+        <div class="row g-4 py-5 row-cols-1 row-cols-md-2 row-cols-lg-3">
+            {% for course in courses|slice:":3" %} {# Show only 3 popular courses on landing #}
+            <div class="col d-flex align-items-stretch" data-aos="fade-up" data-aos-delay="{{ forloop.counter0|multiply:100 }}">
+                <div class="glass-card flex-fill shadow-lg h-100 d-flex flex-column">
+                    <a href="{% url 'courses:course_detail' course.slug %}" class="text-decoration-none">
+                        {% if course.thumbnail %}
+                            <img src="{{ course.thumbnail.url }}" alt="Thumbnail for {{ course.title }}" class="course-card-thumbnail">
+                        {% else %}
+                            <img src="https://picsum.photos/seed/lp{{ course.slug }}/600/338" alt="Course cover placeholder" class="course-card-thumbnail">
+                        {% endif %}
+                    </a>
+                    <div class="p-4 d-flex flex-column flex-grow-1">
+                        <h3 class="fw-bold fs-5 mb-2">
+                            <a href="{% url 'courses:course_detail' course.slug %}" class="stretched-link text-decoration-none" style="color:var(--accent-color);">{{ course.title }}</a>
+                        </h3>
+                        <p class="small flex-grow-1" style="color:var(--text-muted-custom);">
+                            {{ course.description|truncatechars:100 }}
+                        </p>
+                        <div class="d-flex align-items-center justify-content-between mt-3">
+                            <span class="badge rounded-pill px-3 py-2" style="background:var(--secondary-color); color:var(--accent-color); font-weight:500;">
+                                <i class="bi bi-person-fill"></i> {{ course.instructor.get_short_name|default:course.instructor.email }}
+                            </span>
+                             <a href="{% url 'courses:course_detail' course.slug %}" class="btn btn-sm btn-outline-light" style="border-color:var(--accent-color); color:var(--accent-color);">Learn More</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% if courses|length > 3 %}
+        <div class="text-center mt-4">
+            <a href="{% url 'courses:course_list' %}" class="btn btn-accent btn-lg">View All Courses</a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endif %}
+
+
+<!-- Testimonials Section (Optional - if you have testimonials) -->
+<section class="testimonials-section py-5 bg-opacity-10" style="background-color: var(--secondary-color);">
+    <div class="container px-4 py-5">
+        <h2 class="section-title text-center display-5" style="color:var(--text-light);">What Our Learners Say</h2>
+        <div class="row g-4 py-5">
+            <div class="col-md-6 col-lg-4 d-flex align-items-stretch" data-aos="flip-left">
+                <div class="glass-card testimonial-card w-100 text-center">
+                    <img src="https://i.pravatar.cc/80?img=1" alt="User Avatar" class="rounded-circle mb-3 mx-auto">
+                    <blockquote class="mb-3">
+                        "The AI feedback on my writing was a game-changer! I've learned so much faster than with traditional online courses."
+                    </blockquote>
+                    <p class="author mb-0">Alex P. - Software Developer</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4 d-flex align-items-stretch" data-aos="flip-left" data-aos-delay="150">
+                <div class="glass-card testimonial-card w-100 text-center">
+                    <img src="https://i.pravatar.cc/80?img=7" alt="User Avatar" class="rounded-circle mb-3 mx-auto">
+                    <blockquote class="mb-3">
+                        "I love the gamified approach! Earning badges and seeing my name on the leaderboard keeps me motivated."
+                    </blockquote>
+                    <p class="author mb-0">Jamie L. - Marketing Student</p>
+                </div>
+            </div>
+            <div class="col-md-12 col-lg-4 d-flex align-items-stretch" data-aos="flip-left" data-aos-delay="300">
+                <div class="glass-card testimonial-card w-100 text-center">
+                    <img src="https://i.pravatar.cc/80?img=32" alt="User Avatar" class="rounded-circle mb-3 mx-auto">
+                    <blockquote class="mb-3">
+                        "The personalized course recommendations are spot on. It feels like the platform really understands what I need to learn next."
+                    </blockquote>
+                    <p class="author mb-0">Maria K. - Lifelong Learner</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Final Call to Action Section -->
+<section class="cta-section my-5 mx-md-5 glass-card">
+    <div class="container p-5" data-aos="fade-up">
+        <div class="row align-items-center">
+            <div class="col-lg-8 text-center text-lg-start">
+                <h2 class="display-5 fw-bold">Ready to Elevate Your Skills?</h2>
+                <p class="lead my-3">Join AI Learning today and experience the future of education. Personalized, engaging, and effective.</p>
+            </div>
+            <div class="col-lg-4 text-center text-lg-end mt-4 mt-lg-0">
+                <a href="{% if user.is_authenticated %}{% url 'users:student_dashboard' %}{% else %}{% url 'users:register' %}{% endif %}" class="btn btn-accent btn-lg px-5 py-3">
+                    {% if user.is_authenticated %}Go to Dashboard{% else %}Get Started Now{% endif %}
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<!-- AOS JS -->
+<script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script>
+  AOS.init({
+    duration: 700, // values from 0 to 3000, with step 50ms
+    easing: 'ease-in-out-quad', // default easing for AOS animations
+    once: true, // whether animation should happen only once - while scrolling down
+    mirror: false, // whether elements should animate out while scrolling past them
+    anchorPlacement: 'top-bottom', // defines which position of the element regarding to window should trigger the animation
+  });
+</script>
+{% endblock %}

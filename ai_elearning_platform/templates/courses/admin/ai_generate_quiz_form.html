@@ -1,0 +1,55 @@
+{% extends "base/base.html" %} {# Or your main app's base.html if not strictly admin #}
+{% load static %}
+
+{% block title %}Generate AI Quiz{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Generate AI Quiz for: {{ lesson.title|default:"New Topic" }}</h1>
+    {% if lesson %}
+        <p>This will generate a quiz based on the text content of the lesson: <strong>{{ lesson.title }}</strong>.</p>
+    {% else %}
+        <p>Generate a quiz based on a topic you provide.</p>
+    {% endif %}
+
+    <form method="POST" action=""> {# POSTs to current URL #}
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="id_quiz_title" class="form-label">Quiz Title:</label>
+            <input type="text" name="quiz_title" class="form-control" id="id_quiz_title" 
+                   value="Quiz for: {{ lesson.title|default:'New Topic' }}" required>
+        </div>
+        {% if not lesson %} {# Only show topic input if not generating from a lesson #}
+        <div class="mb-3">
+            <label for="id_custom_topic" class="form-label">Topic for Quiz:</label>
+            <textarea name="custom_topic" class="form-control" id="id_custom_topic" rows="3" placeholder="E.g., Python Data Types, Introduction to Loops"></textarea>
+            <small class="form-text text-muted">If generating from a topic, provide details here. Otherwise, lesson content will be used.</small>
+        </div>
+        {% endif %}
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <label for="id_num_mcq" class="form-label">Number of MCQs:</label>
+                <input type="number" name="num_mcq" class="form-control" id="id_num_mcq" value="3" min="0" max="10">
+            </div>
+            <div class="col-md-4 mb-3">
+                <label for="id_num_saq" class="form-label">Number of SAQs:</label>
+                <input type="number" name="num_saq" class="form-control" id="id_num_saq" value="2" min="0" max="5">
+            </div>
+            <div class="col-md-4 mb-3">
+                <label for="id_difficulty" class="form-label">Difficulty:</label>
+                <select name="difficulty" class="form-select" id="id_difficulty">
+                    <option value="easy">Easy</option>
+                    <option value="medium" selected>Medium</option>
+                    <option value="hard">Hard</option>
+                </select>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Generate Quiz with AI</button>
+        {% if lesson %}
+            <a href="{% url 'admin:courses_lesson_change' lesson.id %}" class="btn btn-secondary">Cancel</a>
+        {% else %}
+             <a href="{% url 'admin:courses_quiz_changelist' %}" class="btn btn-secondary">Cancel</a>
+        {% endif %}
+    </form>
+</div>
+{% endblock %}

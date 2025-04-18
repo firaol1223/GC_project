@@ -1,0 +1,168 @@
+{% extends "base/base.html" %}
+{% load static %}
+{# {% load humanize %} # For things like naturaltime if you prefer, Django's timesince is good #}
+
+{% block title %}{{ page_title|default:category.name }} - Forum - {{ block.super }}{% endblock title %}
+
+{% block extra_head %}
+{{ block.super }}
+<style>
+    /* Specific styles for this page, if any, beyond custom.css */
+    .breadcrumb.glass-card { /* Style breadcrumb to match theme */
+        background-color: rgba(var(--secondary-color-rgb), 0.3) !important;
+        border: 1px solid rgba(var(--accent-color-rgb), 0.1) !important;
+        border-radius: var(--radius-sm);
+    }
+    [data-theme="light"] .breadcrumb.glass-card {
+        background-color: rgba(var(--light-bg-alt-rgb), 0.7) !important;
+        border-color: rgba(var(--secondary-color-rgb), 0.3) !important;
+    }
+    .breadcrumb-item a {
+        color: var(--accent-color);
+        text-decoration: none;
+        font-weight: 500;
+    }
+    .breadcrumb-item.active {
+        color: var(--text-light); /* For dark theme */
+        font-weight: 500;
+    }
+    [data-theme="light"] .breadcrumb-item.active {
+        color: var(--text-dark); /* For light theme */
+    }
+
+    .thread-list-item { /* Custom class for list group items */
+        background-color: transparent; /* Let parent glass-card handle background */
+        border-color: rgba(var(--accent-color-rgb), 0.15) !important; /* Subtle border between items */
+        transition: var(--transition);
+        color: var(--text-light); /* Default text color for dark theme */
+    }
+    .thread-list-item:hover {
+        background-color: rgba(var(--accent-color-rgb), 0.08) !important;
+        transform: translateX(5px);
+    }
+    [data-theme="light"] .thread-list-item {
+        border-color: rgba(var(--secondary-color-rgb), 0.2) !important;
+        color: var(--text-dark);
+    }
+    [data-theme="light"] .thread-list-item:hover {
+        background-color: rgba(var(--accent-color-rgb), 0.08) !important;
+    }
+
+    .thread-list-item .thread-title {
+        color: var(--accent-color);
+        font-weight: 600;
+    }
+    [data-theme="light"] .thread-list-item .thread-title {
+        color: var(--progress-color); /* Or your dark theme accent for consistency */
+    }
+    .thread-list-item .thread-meta {
+        color: var(--text-muted-custom);
+        font-size: 0.85rem;
+    }
+</style>
+{% endblock extra_head %}
+
+{% block content %}
+<section class="category-detail-section py-5">
+    <div class="container px-4 py-5">
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb" class="mb-4" data-aos="fade-down">
+            <ol class="breadcrumb glass-card p-3 shadow-sm">
+                <li class="breadcrumb-item"><a href="{% url 'forum:forum_home' %}">Forums</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{ category.name }}</li>
+            </ol>
+        </nav>
+
+        <!-- Category Header -->
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 pb-2 border-bottom border-glass" 
+             data-aos="fade-up">
+            <div>
+                <h1 class="section-title mb-1">{{ category.name }}</h1>
+                {% if category.description %}
+                <p class="lead text-muted-custom mb-3">{{ category.description }}</p>
+                {% endif %}
+            </div>
+            {% if user.is_authenticated %}
+            <a href="{% url 'forum:create_thread' category_slug=category.slug %}" class="btn btn-accent btn-lg px-4 py-2 mb-3 mb-md-0">
+                <i class="bi bi-plus-circle-fill me-2"></i>Start New Topic
+            </a>
+            {% else %}
+             <a href="{% url 'users:login' %}?next={{ request.path }}" class="btn btn-outline-accent btn-lg px-4 py-2 mb-3 mb-md-0">
+                <i class="bi bi-box-arrow-in-right me-2"></i>Login to Post
+            </a>
+            {% endif %}
+        </div>
+
+        <!-- Threads List -->
+        {% if page_obj.object_list %}
+        <div class="list-group glass-card p-2 shadow-lg" data-aos="fade-up" data-aos-delay="100">
+            {% for thread in page_obj.object_list %}
+            <a href="{{ thread.get_absolute_url }}" 
+               class="list-group-item list-group-item-action thread-list-item flex-column align-items-start p-3 mb-2 rounded">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1 thread-title">{{ thread.title|truncatechars:80 }}</h5>
+                    <small class="thread-meta text-nowrap">
+                        <i class="bi bi-chat-dots-fill me-1"></i>{{ thread.posts.count }} post{{ thread.posts.count|pluralize }}
+                    </small>
+                </div>
+                <p class="mb-1 thread-meta">
+                    Started by: <strong style="color: var(--accent-color);">{{ thread.author.get_short_name|default:thread.author.email }}</strong> - {{ thread.created_at|timesince }} ago
+                </p>
+                {% with last_post=thread.get_last_post %} {# Ensure get_last_post is efficient #}
+                    {% if last_post %}
+                    <small class="thread-meta">
+                        Last reply by 
+                        <strong style="color: var(--accent-color);">{{ last_post.author.get_short_name|default:last_post.author.email }}</strong> 
+                        - {{ last_post.created_at|timesince }} ago
+                    </small>
+                    {% else %}
+                    <small class="thread-meta">No replies yet.</small>
+                    {% endif %}
+                {% endwith %}
+            </a>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+            <div data-aos="fade-up" data-aos-delay="200">
+             {% include "partials/_pagination.html" with page_obj=page_obj search_query=search_query current_category=category %}
+            </div>
+        {% endif %}
+
+        {% else %}
+        <div class="glass-card p-5 text-center mt-4 shadow-lg" data-aos="fade-up" data-aos-delay="100">
+            <i class="bi bi-chat-square-quote fs-1 text-accent mb-3"></i>
+            <h4 class="fw-bold" style="color:var(--text-light);">No Topics Yet</h4>
+            <p class="lead" style="color:var(--text-muted-custom);">
+                There are no discussions in the "{{ category.name }}" category yet.
+            </p>
+            {% if user.is_authenticated %}
+            <a href="{% url 'forum:create_thread' category_slug=category.slug %}" class="btn btn-accent btn-lg mt-3">
+                <i class="bi bi-pencil-square"></i> Be the first to start one!
+            </a>
+            {% else %}
+            <a href="{% url 'users:login' %}?next={{ request.path }}" class="btn btn-outline-accent btn-lg mt-3">
+                <i class="bi bi-box-arrow-in-right"></i> Login to start a topic
+            </a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock content %}
+
+{% block extra_js %}
+{{ block.super }}
+<script>
+    // AOS Init (ensure it's initialized once, preferably in base.html)
+    if (typeof AOS !== 'undefined' && typeof AOS.init === 'function') {
+        AOS.init({
+            duration: 600,
+            easing: 'ease-out-quad',
+            once: true,
+            offset: 50
+        });
+    }
+</script>
+{% endblock extra_js %}
