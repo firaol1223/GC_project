@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% load static %}
+{% load course_tags %}
+{% block title %}{{ lesson.title }} - {{ course.title }} - {{ block.super }}{% endblock title %}
+
+{% block content %}
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'courses:course_list' %}">Courses</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'courses:course_detail' course_slug=course.slug %}">{{ course.title }}</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'courses:course_detail' course_slug=course.slug %}#collapse{{ current_module.id }}">Module {{ current_module.order }}: {{ current_module.title }}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ lesson.title }}</li>
+        </ol>
+    </nav>
+
+    <h1 class="mb-3">{{ lesson.title }}</h1>
+    <hr>
+
+    {% if contents %}
+        {% for content_item in contents %}
+            <div class="content-block mb-4 p-3 border rounded shadow-sm">
+                <h4>{{ content_item.get_content_type_display }}</h4>
+                {% if content_item.content_type == 'text' %}
+                    <div>{{ content_item.text_content|safe|linebreaksbr }}</div>
+                {% elif content_item.content_type == 'video' and content_item.video_embed_url %}
+                    <div class="ratio ratio-16x9">
+                        <iframe src="{{ content_item.video_embed_url }}"
+                                title="Lesson Video"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowfullscreen>
+                        </iframe>
+                    </div>
+                    <small><a href="{{ content_item.video_embed_url }}" target="_blank" rel="noopener noreferrer">Watch on source platform</a></small>
+                {% elif content_item.content_type == 'file' and content_item.file_upload %}
+                    <p>
+                        <a href="{{ content_item.file_upload.url }}" class="btn btn-outline-primary" download>
+                            Download {{ content_item.file_upload.name|filename }}
+                            <!-- We might need a custom template filter 'filename' to extract just the file name -->
+                        </a>
+                    </p>
+                {% elif content_item.content_type == 'quiz' %}
+                    <p><em>Quiz content will be displayed here. (Coming Soon)</em></p>
+                {% else %}
+                    <p><em>Content not available or type not recognized.</em></p>
+                {% endif %}
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>No content available for this lesson yet.</p>
+    {% endif %}
+
+    <hr>
+    <div class="d-flex justify-content-between mt-4">
+        <!-- Basic Previous/Next Lesson Navigation (can be improved) -->
+        {% comment %}
+        {% with previous_lesson=lesson.get_previous_lesson_in_module next_lesson=lesson.get_next_lesson_in_module %}
+            {% if previous_lesson %}
+                <a href="{% url 'courses:lesson_detail' course_slug=course.slug lesson_slug=previous_lesson.slug %}" class="btn btn-secondary">« Previous Lesson</a>
+            {% else %}
+                <span></span> <!-- Placeholder for alignment -->
+            {% endif %}
+            {% if next_lesson %}
+                <a href="{% url 'courses:lesson_detail' course_slug=course.slug lesson_slug=next_lesson.slug %}" class="btn btn-primary">Next Lesson »</a>
+            {% endif %}
+        {% endwith %}
+        {% endcomment %}
+        <p><a href="{% url 'courses:course_detail' course_slug=course.slug %}#collapse{{ current_module.id }}" class="btn btn-outline-secondary">Back to Module Overview</a></p>
+    </div>
+</div>
+{% endblock content %}
