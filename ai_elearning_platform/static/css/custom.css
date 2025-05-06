@@ -1,0 +1,1384 @@
+/* Define root variables for both themes */
+:root {
+    --primary-color: #0a192f; /* Dark Navy */
+    --secondary-color: #1f4068; /* Dark Slate Blue */
+    --accent-color: #00bcd4; /* Cyan */
+    --progress-color: #16a085; /* Teal */
+    --light-bg: #f8f9fa; /* Light Gray */
+    --light-bg-alt: #eceff1; /* Lighter Gray */
+    --text-light: #eceff1;
+    --text-dark: #263238;
+    --text-muted-dark: #b0bec5;
+    --navbar-glass: rgba(10, 25, 47, 0.92); /* Dark glass effect */
+    --shadow-lg: 0 8px 24px 0 rgba(10, 25, 47, 0.15);
+    --shadow-lg-hover: 0 12px 30px 0 rgba(10, 25, 47, 0.20);
+    --shadow-neumorph: 8px 8px 24px #09172a, -8px -8px 24px #142d4a;
+    --shadow-inset: inset 6px 6px 20px #0c203b, inset -6px -6px 20px #152c47;
+    --radius-lg: 2rem;
+    --radius-md: 1rem;
+    --radius-sm: 0.5rem;
+    --transition: all 0.32s cubic-bezier(0.77, 0, 0.18, 1);
+    --primary-color-rgb: 10, 25, 47;
+    --secondary-color-rgb: 31, 64, 104;
+    --accent-color-rgb: 0, 188, 212;
+    --text-light-rgb: 248, 249, 250;
+    --text-dark-rgb: 33, 37, 41;
+    /* Fallback for undefined texture */
+    --tinytexture-url: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVQYV2NgAAIAAAUAAarVyFEAAAAASUVORK5CYII=');
+}
+
+html[data-theme="light"] {
+    --primary-color: #f8f9fa;
+    --secondary-color: #eceff1;
+    --accent-color: #00bcd4;
+    --progress-color: #16a085;
+    --light-bg: #ffffff;
+    --light-bg-alt: #f8f9fa;
+    --text-light: #212529; /* Dark text for light mode */
+    --text-dark: #212529;
+    --text-muted-custom: #6c757d;
+    --navbar-glass: rgba(255, 255, 255, 0.93);
+    --shadow-lg: 0 8px 24px 0 rgba(44, 62, 80, 0.06);
+    --shadow-lg-hover: 0 12px 30px 0 rgba(44, 62, 80, 0.10);
+    --shadow-neumorph: 8px 8px 24px #dde3ea, -8px -8px 24px #ffffff;
+    --shadow-inset: inset 6px 6px 20px #e1eaf3, inset -6px -6px 20px #f7fafc;
+    --primary-color-rgb: 248, 249, 250;
+    --secondary-color-rgb: 236, 239, 241;
+}
+
+/* Base body styles */
+body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: var(--primary-color);
+    color: var(--text-light);
+    min-height: 100vh;
+    background-image: var(--tinytexture-url), linear-gradient(120deg, var(--primary-color) 90%, var(--accent-color) 110%);
+    background-size: cover;
+    transition: var(--transition);
+}
+
+html[data-theme="light"] body {
+    background: var(--light-bg);
+    color: var(--text-dark);
+    background-image: var(--tinytexture-url), linear-gradient(120deg, var(--light-bg) 90%, var(--accent-color) 110%);
+}
+.btn-accent .spinner-border {
+    color: var(--primary-color); /* Or var(--text-light) if your btn-accent text is light */
+    /* Or a contrasting color if needed */
+}
+/* Navbar glass effect */
+[data-theme="light"] .btn-accent .spinner-border {
+    color: var(--text-dark); /* Or var(--primary-color) if btn-accent text is dark on light theme */
+}
+.navbar-glass {
+    background: var(--navbar-glass);
+    backdrop-filter: blur(16px) saturate(160%);
+    box-shadow: var(--shadow-lg);
+    border-radius: 0 0 var(--radius-md) var(--radius-md);
+    transition: var(--transition);
+}
+
+.nav-link, .navbar-brand {
+    color: var(--accent-color) !important;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    transition: color 0.15s;
+}
+
+.nav-link.active, .nav-link:focus, .nav-link:hover {
+    color: var(--progress-color) !important;
+    text-shadow: 0 2px 8px rgba(22, 160, 133, 0.18);
+}
+
+/* Glass card effect */
+.glass-card {
+    background: rgba(255, 255, 255, 0.02);
+    box-shadow: var(--shadow-neumorph);
+    border-radius: var(--radius-md);
+    border: 1px solid rgba(44, 62, 80, 0.10);
+    backdrop-filter: blur(14px) saturate(180%);
+    transition: var(--transition);
+}
+
+html[data-theme="light"] .glass-card {
+    background: rgba(255, 255, 255, 0.88);
+    box-shadow: var(--shadow-neumorph);
+    border: 1px solid rgba(44, 62, 80, 0.09);
+}
+
+/* Button styles */
+.btn-accent, .btn-primary-custom {
+    background: var(--accent-color);
+    color: var(--primary-color);
+    font-weight: 600;
+    border-radius: var(--radius-sm);
+    box-shadow: 0 2px 8px 0 rgba(0, 188, 212, 0.15);
+    transition: var(--transition);
+    padding: 0.75rem 1.5rem;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-accent:hover, .btn-accent:focus,
+.btn-primary-custom:hover, .btn-primary-custom:focus {
+    background: var(--progress-color);
+    color: #fff;
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 6px 18px 0 rgba(22, 160, 133, 0.20);
+}
+
+html[data-theme="light"] .btn-primary-custom {
+    color: var(--text-dark);
+}
+
+html[data-theme="light"] .btn-primary-custom:hover,
+html[data-theme="light"] .btn-primary-custom:focus {
+    color: var(--text-light);
+}
+
+.btn-secondary-custom {
+    background: transparent;
+    color: var(--accent-color);
+    border: 2px solid var(--accent-color);
+    font-weight: 600;
+    border-radius: var(--radius-sm);
+    transition: var(--transition);
+    padding: 0.75rem 1.5rem;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-secondary-custom:hover,
+.btn-secondary-custom:focus {
+    background: var(--accent-color);
+    color: var(--primary-color);
+    transform: translateY(-2px);
+}
+
+html[data-theme="light"] .btn-secondary-custom {
+    color: var(--accent-color);
+    border-color: var(--accent-color);
+}
+
+html[data-theme="light"] .btn-secondary-custom:hover,
+html[data-theme="light"] .btn-secondary-custom:focus {
+    color: var(--text-dark);
+}
+
+.btn-lg.btn-primary-custom,
+.btn-lg.btn-secondary-custom {
+    padding: 0.8rem 1.9rem;
+    font-size: 1.15rem;
+    border-radius: var(--radius-md);
+}
+
+/* Progress bar */
+.progress {
+    background: var(--secondary-color);
+    height: 0.7rem;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-inset);
+}
+
+.progress-bar {
+    background: linear-gradient(90deg, var(--accent-color), var(--progress-color));
+    border-radius: var(--radius-md);
+    transition: var(--transition);
+}
+
+/* Course card thumbnail */
+.course-card-thumbnail {
+    width: 100%;
+    aspect-ratio: 16/9;
+    object-fit: cover;
+    border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+    box-shadow: 0 2px 10px 0 rgba(0, 0, 0, 0.13);
+    background: var(--secondary-color);
+}
+
+/* Section title */
+.section-title {
+    font-weight: 900;
+    margin-bottom: 3rem;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    color: var(--text-light);
+}
+
+.section-title .highlight-accent, .text-accent {
+    color: var(--accent-color);
+}
+
+html[data-theme="light"] .section-title {
+    color: var(--text-dark);
+}
+
+/* Hero section */
+.hero-section {
+    padding: 6rem 0;
+    color: var(--text-light);
+    text-align: center;
+    position: relative;
+    z-index: 1;
+}
+
+.hero-section h1 {
+    font-weight: 900;
+    font-size: clamp(2.5rem, 5vw, 3.5rem); /* Responsive font size */
+}
+
+.hero-section .lead {
+    color: var(--light-bg-alt);
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+html[data-theme="light"] .hero-section {
+    color: var(--text-dark);
+}
+
+html[data-theme="light"] .hero-section .lead {
+    color: var(--text-muted-custom);
+}
+
+/* Features section */
+.features-section {
+    padding: 4rem 0;
+    position: relative;
+    z-index: 1;
+}
+
+.feature-item {
+    text-align: center;
+    padding: 2rem 1.5rem;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: transform 0.3s ease-out, box-shadow 0.3s ease-out;
+}
+
+.feature-item:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: var(--shadow-lg-hover);
+}
+
+html[data-theme="light"] .feature-item:hover {
+    box-shadow: var(--shadow-lg-hover);
+}
+
+.feature-icon {
+    font-size: 3rem;
+    color: var(--accent-color);
+    margin-bottom: 1rem;
+    line-height: 1;
+}
+
+.feature-item h5 {
+    font-weight: 600;
+    color: var(--text-light);
+    margin-bottom: 0.75rem;
+}
+
+.feature-item p {
+    font-size: 0.95rem;
+    color: var(--text-muted-custom);
+    flex-grow: 1;
+}
+
+html[data-theme="light"] .feature-item h5 {
+    color: var(--text-dark);
+}
+
+html[data-theme="light"] .feature-item p {
+    color: var(--text-muted-custom);
+}
+
+/* How It Works section */
+.how-it-works-section {
+    padding: 4rem 0;
+    position: relative;
+    z-index: 1;
+}
+
+.how-it-works-item {
+    padding: 2rem;
+    text-align: center;
+    height: 100%;
+}
+
+.step-number {
+    display: block;
+    font-size: 2.8rem;
+    font-weight: 900;
+    color: var(--accent-color);
+    margin-bottom: 0.5rem;
+    line-height: 1;
+}
+
+.how-it-works-item h5 {
+    font-weight: 600;
+    color: var(--text-light);
+    margin-bottom: 0.75rem;
+}
+
+.how-it-works-item p {
+    color: var(--text-muted-custom);
+    font-size: 0.95rem;
+}
+
+html[data-theme="light"] .how-it-works-item h5 {
+    color: var(--text-dark);
+}
+
+html[data-theme="light"] .how-it-works-item p {
+    color: var(--text-muted-custom);
+}
+
+/* Testimonials section */
+.testimonials-section {
+    padding: 4rem 0;
+    position: relative;
+    z-index: 1;
+    background-color: rgba(var(--secondary-color-rgb), 0.1);
+}
+
+.testimonial-card {
+    padding: 2rem;
+    height: 100%;
+}
+
+.testimonial-card img {
+    width: 70px;
+    height: 70px;
+    object-fit: cover;
+    border: 3px solid var(--accent-color);
+}
+
+.testimonial-card blockquote {
+    font-style: italic;
+    font-size: 1.1rem;
+    color: var(--text-light);
+    margin-bottom: 1rem;
+    border-left: 3px solid var(--accent-color);
+    padding-left: 1rem;
+}
+
+.testimonial-card .author {
+    font-weight: 600;
+    color: var(--accent-color);
+}
+
+html[data-theme="light"] .testimonial-card blockquote {
+    color: var(--text-dark);
+}
+
+/* Popular Courses section */
+.popular-courses-section {
+    padding: 4rem 0;
+    position: relative;
+    z-index: 1;
+}
+
+/* Call to Action section */
+.cta-section {
+    padding: 5rem 0;
+    text-align: center;
+    background-color: var(--secondary-color);
+    border-radius: var(--radius-lg);
+    margin: 3rem 1rem;
+    position: relative;
+    z-index: 1;
+}
+
+.cta-section h2 {
+    font-weight: 900;
+    color: var(--text-light);
+    font-size: 2.5rem;
+}
+
+.cta-section p {
+    color: var(--light-bg-alt);
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    font-size: 1.1rem;
+}
+
+html[data-theme="light"] .cta-section {
+    background-color: var(--light-bg-alt);
+}
+
+html[data-theme="light"] .cta-section h2 {
+    color: var(--text-dark);
+}
+
+html[data-theme="light"] .cta-section p {
+    color: var(--text-muted-custom);
+}
+
+/* Theme toggle */
+.theme-toggle {
+    border: none;
+    background: transparent;
+    font-size: 1.75rem;
+    outline: none;
+    color: var(--accent-color);
+    cursor: pointer;
+    transition: color 0.18s, transform 0.2s;
+}
+
+.theme-toggle:hover {
+    color: var(--progress-color);
+    transform: scale(1.13) rotate(-10deg);
+}
+
+/* Animated background waves */
+.bg-animated {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.wave {
+    position: absolute;
+    width: 120vw; /* Reduced for performance */
+    height: 200px;
+    left: -20vw;
+    opacity: 0.1;
+    background: radial-gradient(ellipse at 50% 80%, var(--accent-color) 35%, transparent 100%);
+    animation: waveMove 20s linear infinite alternate;
+    filter: blur(20px); /* Reduced blur for performance */
+}
+
+.wave.wave1 {
+    top: 0;
+    animation-delay: 0s;
+}
+
+.wave.wave2 {
+    top: 120px;
+    opacity: 0.08;
+    animation-delay: 7s;
+}
+
+.wave.wave3 {
+    top: 280px;
+    opacity: 0.06;
+    animation-delay: 12s;
+}
+
+@keyframes waveMove {
+    0% {
+        transform: translateX(0) scaleX(1.02);
+    }
+    100% {
+        transform: translateX(-200px) scaleX(0.97);
+    }
+}
+
+/* Footer */
+
+.footer {
+    background: var(--secondary-color);
+    color: var(--text-light);
+    box-shadow: var(--shadow-inset); /* Subtle inset shadow */
+    border-radius: var(--radius-md) var(--radius-md) 0 0; /* Rounded top corners */
+    font-size: 1.05rem; /* Slightly larger */
+    /* margin-top: 3rem; Remove if using sticky footer approach */
+    padding: 2.2rem 0 1rem 0;
+    transition: var(--transition);
+    position: relative; /* For z-index if needed over bg-animated */
+    z-index: 1;
+}
+html[data-theme="light"] .footer {
+    background: var(--secondary-color); /* Light theme secondary, e.g., #eceff1 */
+    color: var(--text-dark); /* Dark text on light secondary */
+    box-shadow: var(--shadow-inset); /* Light theme inset shadow */
+}
+/* For links in footer */
+.footer-link {
+    color: var(--text-muted-custom); /* Use the themed muted color */
+    text-decoration: none;
+    transition: color 0.2s ease-in-out;
+}
+.footer-link:hover {
+    color: var(--accent-color);
+}
+
+
+/* Courses Section */
+.courses-section {
+    padding: 4rem 0;
+    position: relative;
+    z-index: 1; /* Ensure content is above .bg-animated */
+}
+
+.courses-section .glass-card {
+    transition: transform 0.3s ease-out, box-shadow 0.3s ease-out;
+}
+
+.courses-section .glass-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: var(--shadow-lg-hover);
+}
+
+html[data-theme="light"] .courses-section .glass-card:hover {
+    box-shadow: var(--shadow-lg-hover);
+}
+
+.courses-section .course-card-thumbnail {
+    height: 200px; /* Match original card-img-top height */
+    object-fit: cover;
+    transition: var(--transition);
+}
+
+.courses-section .glass-card:hover .course-card-thumbnail {
+    filter: brightness(1.1); /* Subtle hover effect on image */
+}
+
+.courses-section .badge {
+    transition: var(--transition);
+}
+
+.courses-section .badge:hover {
+    background: var(--accent-color);
+    color: var(--primary-color);
+}
+
+/* Course Detail Section */
+.course-detail-section {
+    padding: 4rem 0;
+    position: relative;
+    z-index: 1; /* Ensure content is above .bg-animated */
+}
+
+/* Accordion Styling */
+.course-detail-section .accordion.glass-card {
+    background: rgba(255, 255, 255, 0.02);
+    box-shadow: var(--shadow-neumorph);
+    border: 1px solid rgba(44, 62, 80, 0.10);
+    border-radius: var(--radius-md);
+    backdrop-filter: blur(14px) saturate(180%);
+}
+
+html[data-theme="light"] .course-detail-section .accordion.glass-card {
+    background: rgba(255, 255, 255, 0.88);
+    box-shadow: var(--shadow-neumorph);
+    border: 1px solid rgba(44, 62, 80, 0.09);
+}
+
+.course-detail-section .accordion-item.glass-card {
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid rgba(44, 62, 80, 0.15);
+    border-radius: 0;
+}
+
+.course-detail-section .accordion-item:last-child {
+    border-bottom: none;
+}
+
+.course-detail-section .accordion-button {
+    background: transparent;
+    color: var(--text-light);
+    font-weight: 600;
+    padding: 1.5rem;
+    box-shadow: none;
+    transition: var(--transition);
+}
+
+html[data-theme="light"] .course-detail-section .accordion-button {
+    color: var(--text-dark);
+}
+
+.course-detail-section .accordion-button:not(.collapsed) {
+    background: rgba(var(--accent-color-rgb), 0.1);
+    color: var(--accent-color);
+}
+
+.course-detail-section .accordion-button:focus {
+    box-shadow: none;
+    border-color: transparent;
+}
+
+.course-detail-section .accordion-button::after {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%2300bcd4'%3E%3Cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
+    transition: var(--transition);
+}
+
+.course-detail-section .accordion-button:not(.collapsed)::after {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%2316a085'%3E%3Cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
+}
+
+.course-detail-section .accordion-body {
+    padding: 1.5rem;
+    color: var(--text-light);
+}
+
+html[data-theme="light"] .course-detail-section .accordion-body {
+    color: var(--text-dark);
+}
+
+/* List Group Styling */
+.course-detail-section .list-group-item.glass-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: none;
+    border-radius: var(--radius-sm);
+    margin-bottom: 0.5rem;
+    padding: 1rem 1.5rem;
+    transition: var(--transition);
+}
+
+html[data-theme="light"] .course-detail-section .list-group-item.glass-card {
+    background: rgba(255, 255, 255, 0.75);
+}
+
+.course-detail-section .list-group-item.glass-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg-hover);
+}
+
+.course-detail-section .list-group-item.completed-lesson {
+    background: rgba(var(--progress-color-rgb), 0.1);
+}
+
+.course-detail-section .list-group-item a {
+    color: var(--accent-color);
+    font-weight: 500;
+    transition: var(--transition);
+}
+
+.course-detail-section .list-group-item a:hover {
+    color: var(--progress-color);
+}
+
+.course-detail-section .list-group-item .text-muted {
+    color: var(--text-muted-custom) !important;
+}
+
+/* Progress Bar Styling */
+.course-detail-section .progress.glass-card {
+    background: var(--secondary-color);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-inset);
+    height: 25px;
+}
+
+.course-detail-section .progress-bar {
+    background: linear-gradient(90deg, var(--accent-color), var(--progress-color));
+    color: var(--text-light);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-md);
+    transition: var(--transition);
+}
+
+/* Badges */
+.course-detail-section .badge.bg-success {
+    background: var(--progress-color) !important;
+    color: var(--text-light);
+}
+
+.course-detail-section .badge.bg-info {
+    background: var(--accent-color) !important;
+    color: var(--primary-color);
+}
+
+html[data-theme="light"] .course-detail-section .badge.bg-info {
+    color: var(--text-dark);
+}
+
+/* Auth Section (Login and Register) */
+.auth-section {
+    padding: 4rem 0;
+    position: relative;
+    z-index: 1; /* Ensure content is above .bg-animated */
+}
+
+.auth-section .glass-card {
+    background: rgba(255, 255, 255, 0.02);
+    box-shadow: var(--shadow-neumorph);
+    border: 1px solid rgba(44, 62, 80, 0.10);
+    border-radius: var(--radius-md);
+    backdrop-filter: blur(14px) saturate(180%);
+    transition: var(--transition);
+}
+
+html[data-theme="light"] .auth-section .glass-card {
+    background: rgba(255, 255, 255, 0.88);
+    box-shadow: var(--shadow-neumorph);
+    border: 1px solid rgba(44, 62, 80, 0.09);
+}
+
+.auth-section .card-header {
+    background: transparent;
+    border-bottom: none;
+    padding: 1.5rem 1.5rem 0;
+}
+
+.auth-section .card-body {
+    padding: 1.5rem;
+}
+
+.auth-section .card-footer {
+    background: transparent;
+    border-top: none;
+    padding: 0 1.5rem 1.5rem;
+    color: var(--text-muted-custom);
+}
+
+.auth-section .card-footer a {
+    color: var(--accent-color);
+    transition: var(--transition);
+}
+
+.auth-section .card-footer a:hover {
+    color: var(--progress-color);
+}
+
+/* Crispy Forms Styling */
+.auth-section .form-group {
+    margin-bottom: 1.5rem;
+}
+
+.auth-section .form-group label {
+    color: var(--text-light);
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+html[data-theme="light"] .auth-section .form-group label {
+    color: var(--text-dark);
+}
+
+.auth-section .form-control {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(44, 62, 80, 0.2);
+    border-radius: var(--radius-sm);
+    color: var(--text-light);
+    padding: 0.75rem 1rem;
+    transition: var(--transition);
+}
+
+html[data-theme="light"] .auth-section .form-control {
+    background: rgba(255, 255, 255, 0.75);
+    border: 1px solid rgba(44, 62, 80, 0.15);
+    color: var(--text-dark);
+}
+
+.auth-section .form-control:focus {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--accent-color);
+    box-shadow: 0 0 8px rgba(var(--accent-color-rgb), 0.3);
+    outline: none;
+}
+
+html[data-theme="light"] .auth-section .form-control:focus {
+    background: rgba(255, 255, 255, 0.9);
+}
+
+.auth-section .form-group .help-block, 
+.auth-section .form-group .invalid-feedback {
+    color: #e57373; /* Soft red for errors */
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+/* Button Styling */
+.auth-section .btn-primary-custom {
+    width: auto;
+    padding: 0.75rem 2rem;
+}
+
+.auth-section .text-muted a {
+    color: var(--accent-color);
+    transition: var(--transition);
+}
+
+.auth-section .text-muted a:hover {
+    color: var(--progress-color);
+}
+
+/* Lesson Detail Section */
+.lesson-detail-section {
+    padding: 4rem 0;
+    position: relative;
+    z-index: 1; /* Ensure content is above .bg-animated */
+}
+
+/* Breadcrumb Styling */
+.lesson-detail-section .breadcrumb.glass-card {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(44, 62, 80, 0.10);
+    border-radius: var(--radius-md);
+    backdrop-filter: blur(14px) saturate(180%);
+    padding: 1rem 1.5rem;
+    margin-bottom: 2rem;
+}
+
+html[data-theme="light"] .lesson-detail-section .breadcrumb.glass-card {
+    background: rgba(255, 255, 255, 0.88);
+    border: 1px solid rgba(44, 62, 80, 0.09);
+}
+
+.lesson-detail-section .breadcrumb-item a {
+    color: var(--accent-color);
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.lesson-detail-section .breadcrumb-item a:hover {
+    color: var(--progress-color);
+}
+
+.lesson-detail-section .breadcrumb-item.active {
+    color: var(--text-light);
+}
+
+html[data-theme="light"] .lesson-detail-section .breadcrumb-item.active {
+    color: var(--text-dark);
+}
+
+.lesson-detail-section .breadcrumb-item + .breadcrumb-item::before {
+    color: var(--text-muted-custom);
+}
+
+/* HR Styling */
+.lesson-detail-section .border-glass {
+    border: 0;
+    height: 1px;
+    background: linear-gradient(to right, transparent, rgba(var(--accent-color-rgb), 0.3), transparent);
+}
+
+/* Content Block Styling */
+.lesson-detail-section .content-block.glass-card {
+    background: rgba(255, 255, 255, 0.05);
+    box-shadow: var(--shadow-neumorph);
+    border: 1px solid rgba(44, 62, 80, 0.10);
+    border-radius: var(--radius-md);
+    backdrop-filter: blur(14px) saturate(180%);
+    transition: var(--transition);
+}
+
+html[data-theme="light"] .lesson-detail-section .content-block.glass-card {
+    background: rgba(255, 255, 255, 0.75);
+    box-shadow: var(--shadow-neumorph);
+    border: 1px solid rgba(44, 62, 80, 0.09);
+}
+
+.lesson-detail-section .content-block.glass-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg-hover);
+}
+
+.lesson-detail-section .content-text {
+    line-height: 1.6;
+}
+
+.lesson-detail-section .glass-iframe {
+    border: 1px solid rgba(44, 62, 80, 0.2);
+    border-radius: var(--radius-sm);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+html[data-theme="light"] .lesson-detail-section .glass-iframe {
+    border: 1px solid rgba(44, 62, 80, 0.15);
+}
+
+/* Buttons */
+.lesson-detail-section .btn-primary-custom,
+.lesson-detail-section .btn-secondary-custom {
+    padding: 0.5rem 1.5rem;
+}
+
+.lesson-detail-section .text-success {
+    color: var(--progress-color) !important;
+    font-weight: 500;
+}
+
+/* Navigation Buttons */
+.lesson-detail-section .border-top.border-glass {
+    border-top: 1px solid rgba(44, 62, 80, 0.15);
+}
+
+/* Links */
+.lesson-detail-section .content-block a {
+    color: var(--accent-color);
+    transition: var(--transition);
+}
+
+.lesson-detail-section .content-block a:hover {
+    color: var(--progress-color);
+}
+
+/* Forums Section */
+.forums-section {
+    padding: 4rem 0;
+    position: relative;
+    z-index: 1; /* Ensure content is above .bg-animated */
+}
+
+.forums-section .glass-card {
+    background: rgba(255, 255, 255, 0.05);
+    box-shadow: var(--shadow-neumorph);
+    border: 1px solid rgba(44, 62, 80, 0.10);
+    border-radius: var(--radius-md);
+    backdrop-filter: blur(14px) saturate(180%);
+    transition: var(--transition);
+}
+
+html[data-theme="light"] .forums-section .glass-card {
+    background: rgba(255, 255, 255, 0.75);
+    box-shadow: var(--shadow-neumorph);
+    border: 1px solid rgba(44, 62, 80, 0.09);
+}
+
+.forums-section .glass-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: var(--shadow-lg-hover);
+}
+
+.forums-section .glass-card h5 {
+    color: var(--accent-color);
+    transition: var(--transition);
+}
+
+.forums-section .glass-card:hover h5 {
+    color: var(--progress-color);
+}
+
+.forums-section .glass-card p,
+.forums-section .glass-card small {
+    color: var(--text-muted-custom);
+}
+
+.forums-section .btn-primary-custom,
+.forums-section .btn-secondary-custom {
+    padding: 0.75rem 2rem;
+}
+
+/* Dashboard Section */
+.dashboard-section {
+    padding: 4rem 0;
+    position: relative;
+    z-index: 1; /* Ensure content is above .bg-animated */
+}
+
+/* Glass Card Styling */
+.dashboard-section .glass-card {
+    background: rgba(255, 255, 255, 0.05);
+    box-shadow: var(--shadow-neumorph);
+    border: 1px solid rgba(44, 62, 80, 0.10);
+    border-radius: var(--radius-md);
+    backdrop-filter: blur(14px) saturate(180%);
+    transition: var(--transition);
+}
+
+html[data-theme="light"] .dashboard-section .glass-card {
+    background: rgba(255, 255, 255, 0.75);
+    box-shadow: var(--shadow-neumorph);
+    border: 1px solid rgba(44, 62, 80, 0.09);
+}
+
+.dashboard-section .glass-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: var(--shadow-lg-hover);
+}
+
+/* Stats Cards - Text Styling */
+.dashboard-section .glass-card .text-light {
+    color: var(--text-light); /* Light color for dark mode */
+    transition: color var(--transition);
+}
+
+html[data-theme="light"] .dashboard-section .glass-card .text-light {
+    color: var(--text-dark); /* Darker color for light mode */
+}
+
+.dashboard-section .glass-card i {
+    transition: var(--transition);
+}
+
+.dashboard-section .glass-card:hover i {
+    transform: scale(1.1);
+}
+
+/* Progress Bar */
+.dashboard-section .progress.glass-card {
+    background: var(--secondary-color);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-inset);
+}
+
+.dashboard-section .progress-bar.bg-accent {
+    background: linear-gradient(90deg, var(--accent-color), var(--progress-color));
+}
+
+.dashboard-section .progress-bar.bg-success {
+    background: var(--progress-color);
+}
+
+.dashboard-section .progress-bar.bg-info {
+    background: var(--accent-color);
+}
+
+.dashboard-section .badge.bg-success {
+    background: var(--progress-color) !important;
+}
+
+.dashboard-section .badge.bg-info {
+    background: var(--accent-color) !important;
+    color: var(--primary-color);
+}
+
+html[data-theme="light"] .dashboard-section .badge.bg-info {
+    color: var(--text-dark);
+}
+
+/* Gamification: Badges */
+.dashboard-section .badge-container {
+    max-width: 100%;
+    overflow-x: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent-color) transparent;
+}
+
+.dashboard-section .badge-container::-webkit-scrollbar {
+    height: 8px;
+}
+
+.dashboard-section .badge-container::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.dashboard-section .badge-container::-webkit-scrollbar-thumb {
+    background: var(--accent-color);
+    border-radius: var(--radius-sm);
+}
+
+.dashboard-section .badge-item {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(var(--accent-color-rgb), 0.2);
+    border-radius: var(--radius-sm);
+    transition: var(--transition);
+    min-width: 120px;
+    max-width: 140px;
+    flex: 0 0 auto;
+}
+
+html[data-theme="light"] .dashboard-section .badge-item {
+    background: rgba(255, 255, 255, 0.85);
+    border: 1px solid rgba(var(--accent-color-rgb), 0.15);
+}
+
+.dashboard-section .badge-item:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 12px rgba(var(--accent-color-rgb), 0.2);
+}
+
+/* HR Styling */
+.dashboard-section .border-glass {
+    border: 0;
+    height: 1px;
+    background: linear-gradient(to right, transparent, rgba(var(--accent-color-rgb), 0.3), transparent);
+}
+
+/* Recently Completed Lessons */
+.dashboard-section .list-group-item.glass-card {
+    background: rgba(255, 255, 255, 0.02);
+    border: none;
+    border-radius: var(--radius-sm);
+}
+
+html[data-theme="light"] .dashboard-section .list-group-item.glass-card {
+    background: rgba(255, 255, 255, 0.85);
+}
+
+html[data-theme="dark"] .dashboard-section .list-group-item.glass-card .text-muted-custom {
+    color: var(--text-muted-dark);
+}
+
+.dashboard-section .list-group-item.glass-card a {
+    color: var(--accent-color);
+    transition: var(--transition);
+}
+
+.dashboard-section .list-group-item.glass-card a:hover {
+    color: var(--progress-color);
+}
+
+/* Recommended Courses */
+.dashboard-section .course-card-thumbnail {
+    height: 180px;
+    object-fit: cover;
+    transition: var(--transition);
+}
+
+.dashboard-section .glass-card:hover .course-card-thumbnail {
+    filter: brightness(1.1);
+}
+
+.dashboard-section .btn-primary-custom,
+.dashboard-section .btn-secondary-custom {
+    padding: 0.5rem 1.5rem;
+}
+html[data-theme="dark"] .dashboard-section .glass-card .text-light {
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+
+/* Quiz Section */
+.quiz-section {
+    padding: 4rem 0;
+    position: relative;
+    z-index: 1; /* Ensure content is above .bg-animated */
+}
+
+/* Breadcrumb Styling */
+.quiz-section .breadcrumb.glass-card {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(44, 62, 80, 0.10);
+    border-radius: var(--radius-md);
+    backdrop-filter: blur(14px) saturate(180%);
+    padding: 1rem 1.5rem;
+    margin-bottom: 2rem;
+}
+
+html[data-theme="light"] .quiz-section .breadcrumb.glass-card {
+    background: rgba(255, 255, 255, 0.88);
+    border: 1px solid rgba(44, 62, 80, 0.09);
+}
+
+.quiz-section .breadcrumb-item a {
+    color: var(--accent-color);
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.quiz-section .breadcrumb-item a:hover {
+    color: var(--progress-color);
+}
+
+.quiz-section .breadcrumb-item.active {
+    color: var(--text-light);
+}
+
+html[data-theme="light"] .quiz-section .breadcrumb-item.active {
+    color: var(--text-dark);
+}
+
+.quiz-section .breadcrumb-item + .breadcrumb-item::before {
+    color: var(--text-muted-dark);
+}
+
+/* HR Styling */
+.quiz-section .border-glass {
+    border: 0;
+    height: 1px;
+    background: linear-gradient(to right, transparent, rgba(var(--accent-color-rgb), 0.3), transparent);
+}
+
+/* Question Cards */
+.quiz-section .glass-card {
+    background: rgba(255, 255, 255, 0.05);
+    box-shadow: var(--shadow-neumorph);
+    border: 1px solid rgba(44, 62, 80, 0.10);
+    border-radius: var(--radius-md);
+    backdrop-filter: blur(14px) saturate(180%);
+    transition: var(--transition);
+}
+
+html[data-theme="light"] .quiz-section .glass-card {
+    background: rgba(255, 255, 255, 0.75);
+    box-shadow: var(--shadow-neumorph);
+    border: 1px solid rgba(44, 62, 80, 0.09);
+}
+
+.quiz-section .glass-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg-hover);
+}
+
+.quiz-section .glass-card .text-light {
+    color: var(--text-light);
+}
+
+html[data-theme="light"] .quiz-section .glass-card .text-light {
+    color: var(--text-dark);
+}
+
+/* Form Inputs */
+.quiz-section .form-check-input.glass-radio {
+    background-color: transparent;
+    border: 2px solid var(--accent-color);
+    transition: var(--transition);
+}
+
+.quiz-section .form-check-input.glass-radio:checked {
+    background-color: var(--accent-color);
+    border-color: var(--progress-color);
+}
+
+.quiz-section .form-check-input.glass-radio:focus {
+    box-shadow: 0 0 0 0.25rem rgba(var(--accent-color-rgb), 0.25);
+}
+
+.quiz-section .form-check-label {
+    color: var(--text-light);
+    transition: var(--transition);
+}
+
+html[data-theme="light"] .quiz-section .form-check-label {
+    color: var(--text-dark);
+}
+
+.quiz-section .form-check-label:hover {
+    color: var(--progress-color);
+}
+
+.quiz-section .form-control.glass-textarea {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(44, 62, 80, 0.2);
+    color: var(--text-light);
+    border-radius: var(--radius-sm);
+    transition: var(--transition);
+}
+
+html[data-theme="light"] .quiz-section .form-control.glass-textarea {
+    background: rgba(255, 255, 255, 0.85);
+    border: 1px solid rgba(44, 62, 80, 0.15);
+    color: var(--text-dark);
+}
+
+.quiz-section .form-control.glass-textarea:focus {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 0.25rem rgba(var(--accent-color-rgb), 0.25);
+    background: rgba(255, 255, 255, 0.1);
+}
+
+html[data-theme="light"] .quiz-section .form-control.glass-textarea:focus {
+    background: rgba(255, 255, 255, 0.9);
+}
+
+/* Buttons */
+.quiz-section .btn-primary-custom {
+    padding: 0.75rem 2rem;
+    transition: var(--transition);
+}
+
+/* Empty State */
+.quiz-section .text-muted-custom {
+    color: var(--text-muted-dark);
+}
+
+
+/* Quiz Results Section */
+.quiz-results-section {
+    padding: 4rem 0;
+    position: relative;
+    z-index: 1; /* Ensure content is above .bg-animated */
+}
+
+/* Glass Card Styling */
+.quiz-results-section .glass-card {
+    background: rgba(255, 255, 255, 0.05);
+    box-shadow: var(--shadow-neumorph);
+    border: 1px solid rgba(44, 62, 80, 0.10);
+    border-radius: var(--radius-md);
+    backdrop-filter: blur(14px) saturate(180%);
+    transition: var(--transition);
+}
+
+html[data-theme="light"] .quiz-results-section .glass-card {
+    background: rgba(255, 255, 255, 0.75);
+    box-shadow: var(--shadow-neumorph);
+    border: 1px solid rgba(44, 62, 80, 0.09);
+}
+
+.quiz-results-section .glass-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg-hover);
+}
+
+.quiz-results-section .glass-card .text-light {
+    color: var(--text-light);
+}
+
+html[data-theme="light"] .quiz-results-section .glass-card .text-light {
+    color: var(--text-dark);
+}
+
+.quiz-results-section .text-muted-custom {
+    color: var(--text-muted-dark);
+}
+
+/* Border Colors for Question Cards */
+.quiz-results-section .glass-card.border-success {
+    border: 2px solid var(--progress-color);
+}
+
+.quiz-results-section .glass-card.border-danger {
+    border: 2px solid #dc3545;
+}
+
+.quiz-results-section .glass-card.border-secondary {
+    border: 2px solid var(--secondary-color);
+}
+
+.quiz-results-section .glass-card.border-info {
+    border: 2px solid var(--accent-color);
+}
+
+/* Badges */
+.quiz-results-section .badge.bg-success {
+    background: var(--progress-color) !important;
+}
+
+.quiz-results-section .badge.bg-danger {
+    background: #dc3545 !important;
+}
+
+/* HR Styling */
+.quiz-results-section .border-glass {
+    border: 0;
+    height: 1px;
+    background: linear-gradient(to right, transparent, rgba(var(--accent-color-rgb), 0.3), transparent);
+}
+
+/* Text Styling */
+.quiz-results-section .text-success {
+    color: var(--progress-color);
+}
+
+.quiz-results-section .text-danger {
+    color: #dc3545;
+}
+
+.quiz-results-section .text-accent {
+    color: var(--accent-color);
+}
+
+/* Buttons */
+.quiz-results-section .btn-primary-custom,
+.quiz-results-section .btn-secondary-custom {
+    padding: 0.75rem 2rem;
+    transition: var(--transition);
+}
+
+/* Icons */
+.quiz-results-section .bi-check-circle-fill,
+.quiz-results-section .bi-x-circle-fill,
+.quiz-results-section .bi-check {
+    vertical-align: middle;
+}
+
+
+
