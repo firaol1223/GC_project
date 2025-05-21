@@ -1,0 +1,119 @@
+{% extends "base/base.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block title %}Login - {{ block.super }}{% endblock title %}
+
+{% block extra_head %}
+{{ block.super }}
+<style>
+  .auth-login-card {
+    background: rgba(var(--primary-color-rgb), 0.20);
+    box-shadow: var(--shadow-neumorph);
+    border-radius: var(--radius-lg);
+    backdrop-filter: blur(14px) brightness(1.10);
+    border: 1px solid rgba(var(--accent-color-rgb), 0.08);
+    padding: 2.5rem 2.2rem;
+  }
+
+  .auth-login-card .form-label {
+    color: var(--text-dark);
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    margin-bottom: 0.3rem;
+  }
+
+  .auth-login-card .form-control {
+    background: rgba(var(--light-bg-rgb, 248, 249, 250), 0.7);
+    border: none;
+    border-radius: var(--radius-md);
+    box-shadow:
+      4px 4px 18px rgba(var(--primary-color-rgb), 0.10),
+      -4px -4px 18px rgba(var(--accent-color-rgb), 0.08),
+      var(--shadow-inset);
+    color: var(--text-dark);
+    font-size: 1.1em;
+    font-weight: 500;
+    padding: 0.85rem 1.1rem;
+    backdrop-filter: blur(2px);
+    transition: var(--transition);
+  }
+
+  .auth-login-card .form-control:focus {
+    background: rgba(var(--light-bg-rgb), 1);
+    box-shadow:
+      0 0 0 3px rgba(var(--accent-color-rgb), 0.17),
+      0 2px 18px 0 rgba(var(--accent-color-rgb), 0.12),
+      var(--shadow-inset);
+    color: var(--text-dark);
+    outline: none;
+  }
+
+  .auth-login-card .errorlist li {
+    color: #dc3545;
+    font-size: 0.9em;
+  }
+</style>
+{% endblock extra_head %}
+
+{% block content %}
+<section class="auth-section py-5">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-6">
+        <div class="auth-login-card" data-aos="fade-up">
+          <div class="text-center mb-4">
+            <h2 class="section-title fw-bold" style="color: var(--accent-color);">Log In</h2>
+          </div>
+          <form method="POST" novalidate>
+            {% csrf_token %}
+            {{ form|crispy }}
+
+            <div class="form-group mt-4 d-flex align-items-center justify-content-between">
+              <button class="btn btn-accent btn-lg px-4" type="submit">Login</button>
+              <small class="text-muted">
+                <a href="{% url 'users:password_reset' %}" class="text-accent">Forgot Password?</a>
+              </small>
+            </div>
+          </form>
+
+          {% if form.errors and not form.non_field_errors %}
+            <!-- Field-specific errors displayed by crispy_forms -->
+          {% elif "inactive" in request.GET %}
+            <div class="alert alert-warning glass-card p-3 border-0 mt-4" role="alert">
+              Your account is not yet active. Please check your email for a verification link.
+            </div>
+          {% elif form.non_field_errors %}
+            <div class="alert alert-danger glass-card p-3 border-0 mt-4" role="alert">
+              {% for error in form.non_field_errors %}
+                {{ error }}
+              {% endfor %}
+            </div>
+          {% endif %}
+
+          <div class="text-center mt-4">
+            <small class="text-muted">
+              Don't have an account?
+              <a href="{% url 'users:register' %}" class="text-accent">Sign Up</a>
+            </small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock content %}
+
+{% block extra_js %}
+<!-- AOS JS -->
+<script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script>
+  AOS.init({
+    duration: 700,
+    easing: 'ease-in-out-quad',
+    once: true,
+    mirror: false,
+    offset: 100
+  });
+</script>
+{% endblock extra_js %}

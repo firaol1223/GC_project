@@ -1,0 +1,233 @@
+{% extends "base/base.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% load course_tags %}
+
+{% block title %}{{ page_title|default:"Dashboard" }} - {{ block.super }}{% endblock title %}
+
+{% block content %}
+<section class="dashboard-section py-5">
+    <div class="container px-4 py-5">
+        <h1 class="section-title text-center mb-5" data-aos="fade-up">
+            {{ page_title|default:"My Learning <span class='highlight-accent'>Dashboard</span>" }}
+        </h1>
+
+        <!-- Overview Stats Cards -->
+        <div class="row row-cols-1 row-cols-md-3 g-4 mb-5" data-aos="fade-up" data-aos-delay="100">
+            <div class="col">
+                <div class="glass-card shadow-lg p-4 text-center">
+                    <i class="bi bi-journal-bookmark-fill fs-2 text-accent mb-3"></i>
+                    <h5 class="fw-bold">Courses Active</h5>
+                    <p class="fs-2 fw-bold text-accent">{{ num_interacted_courses }}</p>
+                </div>
+            </div>
+            <div class="col">
+                <div class="glass-card shadow-lg p-4 text-center">
+                    <i class="bi bi-patch-check-fill fs-2 text-accent mb-3"></i>
+                    <h5 class="fw-bold">Lessons Completed</h5>
+                    <p class="fs-2 fw-bold text-accent">{{ total_lessons_completed }}</p>
+                </div>
+            </div>
+            <div class="col">
+                <div class="glass-card shadow-lg p-4 text-center">
+                    <i class="bi bi-graph-up fs-2 text-accent mb-3"></i>
+                    <h5 class="fw-bold">Avg. Progress</h5>
+                    <p class="fs-2 fw-bold text-accent">{{ overall_average_progress }}%</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- My Courses Progress -->
+        <h2 class="section-title mb-4" data-aos="fade-up" data-aos-delay="200">My Courses Progress</h2>
+        {% if detailed_course_progress %}
+            <div class="row row-cols-1 g-4 mb-5">
+                {% for progress_item in detailed_course_progress %}
+                    <div class="col" data-aos="fade-up" data-aos-delay="{{ forloop.counter0|multiply:100|add:300 }}">
+                        <div class="glass-card shadow-lg p-4">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="fw-bold fs-5 mb-0">
+                                    <a href="{% url 'courses:course_detail' course_slug=progress_item.course.slug %}" class="text-accent text-decoration-none">
+                                        {{ progress_item.course.title }}
+                                    </a>
+                                </h5>
+                                <span class="badge rounded-pill {% if progress_item.progress_percent == 100 %}bg-success{% else %}bg-info{% endif %}">
+                                    {{ progress_item.progress_percent }}%
+                                </span>
+                            </div>
+                            <div class="progress glass-card" style="height: 20px;">
+                                <div class="progress-bar progress-bar-striped progress-bar-animated {% if progress_item.progress_percent == 100 %}bg-success{% else %}bg-info{% endif %}"
+                                     role="progressbar" style="width: {{ progress_item.progress_percent }}%;"
+                                     aria-valuenow="{{ progress_item.progress_percent }}" aria-valuemin="0" aria-valuemax="100">
+                                    {{ progress_item.completed_lessons }}/{{ progress_item.total_lessons }} lessons
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="glass-card shadow-lg p-5 text-center" data-aos="fade-up" data-aos-delay="300">
+                <i class="bi bi-journal-richtext fs-1 text-accent mb-3"></i>
+                <h4 class="fw-bold">Your Learning Journey Awaits!</h4>
+                <p class="text-muted-custom mb-4">You haven't started any courses yet. Dive in and explore a world of knowledge.</p>
+                <a href="{% url 'courses:course_list' %}" class="btn btn-primary-custom btn-lg">Explore Courses Now</a>
+            </div>
+        {% endif %}
+
+        <!-- Gamification: Level, Badges, and Points -->
+        <div class="row g-4 mb-5">
+            <div class="col-md-4" data-aos="fade-up" data-aos-delay="400">
+                <div class="glass-card shadow-lg p-4 text-center">
+                    <h4 class="section-title mb-3">My Level</h4>
+                    {% if level_info and level_info.level %}
+                        <i class="{{ level_info.level.icon|default:'bi-person-check-fill' }} fs-2 text-accent mb-3"></i>
+                        <h3 class="fw-bold mb-2">{{ level_info.level.name }}</h3>
+                        <p class="text-muted-custom">Current Points: {{ total_points }}</p>
+                        {% if level_info.next_level_points_needed %}
+                            <div class="progress glass-card" style="height: 25px;" title="Progress to {{ level_info.level.name }}">
+                                <div class="progress-bar progress-bar-striped progress-bar-animated bg-accent"
+                                     role="progressbar" style="width: {{ level_info.progress_to_next_level_percent }}%;"
+                                     aria-valuenow="{{ level_info.progress_to_next_level_percent }}" aria-valuemin="0" aria-valuemax="100">
+                                    {{ level_info.progress_to_next_level_percent }}%
+                                </div>
+                            </div>
+                            <small class="text-muted-custom mt-2">Next Level at {{ level_info.next_level_points_needed }} points</small>
+                        {% else %}
+                            <p class="text-success fw-bold">You've reached the highest level!</p>
+                        {% endif %}
+                    {% else %}
+                        <p class="text-muted-custom">Level information not available.</p>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-md-8" data-aos="fade-up" data-aos-delay="500">
+                <div class="glass-card shadow-lg p-4 text-center">
+                    <h4 class="section-title mb-3">My Achievements</h4>
+                    <p class="fs-2 fw-bold mb-3">{{ total_points }} <small class="fs-5 text-muted-custom">Points</small></p>
+                    <hr class="border-glass">
+                    <h5 class="mb-3">Badges Earned</h5>
+                    <div class="badge-container d-flex flex-wrap justify-content-center gap-3 p-3">
+                        {% for user_badge in badges_earned %}
+                            <div class="badge-item text-center p-3 border-glass rounded" title="{{ user_badge.badge.description }}">
+                                {% if user_badge.badge.image %}
+                                    <img src="{{ user_badge.badge.image.url }}" alt="{{ user_badge.badge.name }}" class="mb-2" style="width: 60px; height: 60px; object-fit: contain;">
+                                {% elif user_badge.badge.icon_class %}
+                                    <i class="{{ user_badge.badge.icon_class }} fs-2 text-accent mb-2"></i>
+                                {% else %}
+                                    <i class="bi bi-award-fill fs-2 text-accent mb-2"></i>
+                                {% endif %}
+                                <p class="fw-bold small mb-1">{{ user_badge.badge.name }}</p>
+                                <small class="text-muted-custom">Earned: {{ user_badge.awarded_at|date:"d M Y" }}</small>
+                            </div>
+                        {% empty %}
+                            <p class="text-muted-custom">No badges earned yet. Keep learning!</p>
+                        {% endfor %}
+                    </div>
+                    <div class="mt-4">
+                        <a href="" class="btn btn-secondary-custom btn-sm">View Point History</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        
+
+
+<!-- My Certificates Section -->
+<section class="admin-dashboard-section mt-5" data-aos="fade-up" data-aos-delay="500"> {# Reusing admin-dashboard-section class for spacing #}
+    <h3 class="mb-3 fw-semibold" style="color: var(--text-light);">
+        <i class="bi bi-patch-check-fill me-2 text-accent"></i>My Certificates
+    </h3>
+    {% if user_certificates %}
+        <div class="row g-3">
+            {% for cert in user_certificates %}
+            <div class="col-md-6 col-lg-4 d-flex">
+                <div class="glass-card p-3 shadow-sm h-100 w-100 d-flex flex-column">
+                    <div class="mb-2">
+                        <span class="badge" style="background-color: var(--accent-color); color: var(--primary-color);">CERTIFICATE OF COMPLETION</span>
+                    </div>
+                    <h5 class="fw-bold mb-1" style="color: var(--text-light);">{{ cert.course.title }}</h5>
+                    <p class="small text-muted-custom mb-2">Issued: {{ cert.issued_at|date:"F j, Y" }}</p>
+                    <p class="small text-muted-custom mb-3 flex-grow-1">
+                        Certificate ID: <br><code style="color: var(--accent-color); font-size: 0.8em;">{{ cert.certificate_id }}</code>
+                    </p>
+                    <div class="mt-auto text-center">
+                        {# Link to a viewable/downloadable certificate page #}
+                        <a href="{% url 'courses:view_certificate' certificate_uuid=cert.certificate_id %}" 
+                           class="btn btn-sm btn-accent w-100" target="_blank"> 
+                            <i class="bi bi-eye-fill me-1"></i> View Certificate
+                        </a>
+                        {# <a href="#" class="btn btn-sm btn-outline-accent mt-2 w-100">Download PDF</a> #}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="glass-card p-4 text-center">
+            <i class="bi bi-award fs-1 mb-2 text-muted-custom"></i>
+            <p style="color: var(--text-muted-custom);">You haven't earned any certificates yet. Keep learning!</p>
+        </div>
+    {% endif %}
+</section>
+
+        <!-- Recommended Courses -->
+        {# users/student_dashboard.html #}
+        {# ... (after other dashboard sections) ... #}
+        
+        <div class="row mt-5">
+            <div class="col-12">
+                <h3 class="mb-3 fw-semibold" style="color: var(--text-light);">
+                    <i class="bi bi-stars me-2 text-accent"></i>Courses Recommended For You (AI Powered)
+                </h3>
+                {% if openai_recommended_courses %}
+                    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                        {% for rec_course in openai_recommended_courses %}
+                        <div class="col d-flex align-items-stretch" data-aos="fade-up" data-aos-delay="{{ forloop.counter0|multiply:100 }}">
+                            <div class="glass-card h-100 shadow-sm d-flex flex-column p-3">
+                                <h5 class="fw-bold fs-5 mb-2">
+                                    <a href="{% url 'courses:course_detail' course_slug=rec_course.slug %}" class="text-decoration-none text-accent">
+                                        {{ rec_course.title }}
+                                    </a>
+                                </h5>
+                                {% if rec_course.reason %}
+                                <p class="small flex-grow-1 fst-italic" style="color:var(--text-muted-custom);">
+                                    <i class="bi bi-lightbulb-fill me-1 text-accent opacity-75"></i>
+                                    {{ rec_course.reason }}
+                                </p>
+                                {% endif %}
+                                <div class="mt-auto text-center">
+                                    <a href="{% url 'courses:course_detail' course_slug=rec_course.slug %}" class="btn btn-sm btn-outline-accent w-100">View Course</a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="glass-card p-4 text-center">
+                        <i class="bi bi-binoculars-fill fs-1 mb-2 text-muted-custom"></i>
+                        <p style="color: var(--text-muted-custom);">
+                            We're working on finding the perfect next courses for you! 
+                            Complete more lessons or explore our <a href="{% url 'courses:course_list' %}" class="text-accent fw-medium">full course catalog</a>.
+                        </p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+</section>
+{% endblock content %}
+
+{% block extra_js %}
+<!-- AOS JS (if not already in base.html) -->
+<script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script>
+    AOS.init({
+        duration: 700,
+        easing: 'ease-in-out-quad',
+        once: true,
+        mirror: false,
+        offset: 100
+    });
+</script>
+{% endblock extra_js %}
