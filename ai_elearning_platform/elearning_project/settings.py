@@ -24,7 +24,7 @@ MAX_COURSES_FOR_AI_CONTEXT=30
 # DEBUG: Controlled by environment variable. Default to False for safety.
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Add your custom domain(s) here if you have them
